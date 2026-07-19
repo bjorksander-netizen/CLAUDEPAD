@@ -220,6 +220,10 @@ class SettingsActivity : AppCompatActivity() {
             Haptics.light()
             showText("change log", CHANGELOG)
         }
+        findViewById<View>(R.id.rowDiagnose).setOnClickListener {
+            Haptics.medium()
+            runDiagnostic()
+        }
         findViewById<View>(R.id.rowGesture).setOnClickListener {
             Haptics.light()
             showText("panduan gesture", GESTURE_GUIDE)
@@ -232,6 +236,40 @@ class SettingsActivity : AppCompatActivity() {
                 showText("bantuan", "Tidak ada browser.\n\nBuka manual:\n$README_URL")
             }
         }
+    }
+
+    /** Jalankan diagnosa di thread terpisah lalu tampilkan laporannya. */
+    private fun runDiagnostic() {
+        val dlg = AlertDialog.Builder(this)
+            .setTitle("diagnosa koneksi")
+            .setMessage("menjalankan pemeriksaan…")
+            .setCancelable(false)
+            .create()
+        dlg.show()
+        val ip = Prefs.ip(this)
+        Thread {
+            val report = try {
+                Diagnostic.run(this, ip)
+            } catch (e: Exception) {
+                "Diagnosa gagal: ${e.message}"
+            }
+            runOnUiThread {
+                dlg.dismiss()
+                AlertDialog.Builder(this)
+                    .setTitle("diagnosa koneksi")
+                    .setMessage(report)
+                    .setPositiveButton("tutup", null)
+                    .setNeutralButton("salin") { _, _ ->
+                        val cm = getSystemService(CLIPBOARD_SERVICE)
+                            as android.content.ClipboardManager
+                        cm.setPrimaryClip(
+                            android.content.ClipData.newPlainText("diagnosa", report))
+                        android.widget.Toast.makeText(this, "laporan disalin",
+                            android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                    .show()
+            }
+        }.start()
     }
 
     private fun showText(title: String, body: String) {

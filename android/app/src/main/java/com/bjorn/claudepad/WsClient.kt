@@ -11,10 +11,23 @@ import java.util.concurrent.TimeUnit
 
 object WsClient {
 
-    private val client = OkHttpClient.Builder()
-        .pingInterval(15, TimeUnit.SECONDS)
-        .connectTimeout(4, TimeUnit.SECONDS)
-        .build()
+    private fun buildClient(host: String): OkHttpClient {
+        val b = OkHttpClient.Builder()
+            .pingInterval(15, TimeUnit.SECONDS)
+            .connectTimeout(8, TimeUnit.SECONDS)
+        // Ikat ke interface yang satu subnet dengan PC. Tanpa ini, saat HP
+        // jadi hotspot sambil data seluler aktif, Android mengirim paket
+        // lewat seluler dan koneksi selalu gagal.
+        Net.localAddressFor(host)?.let { local ->
+            boundVia = local.hostAddress ?: ""
+            b.socketFactory(Net.BoundSocketFactory(local))
+        } ?: run { boundVia = "" }
+        return b.build()
+    }
+
+    /** Alamat lokal yang dipakai untuk koneksi terakhir (untuk diagnosa). */
+    @Volatile var boundVia: String = ""
+        private set
 
     private var ws: WebSocket? = null
 
@@ -35,8 +48,8 @@ object WsClient {
 
     fun connect(host: String, port: Int, pin: String, appVersion: String) {
         disconnect()
-        val req = Request.Builder().url("ws://$host:$port").build()
-        ws = client.newWebSocket(req, object : WebSocketListener() {
+        val req = Request.Builder().url("ws://$host:$port/ws").build()
+        ws = buildClient(host).newWebSocket(req, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 webSocket.send(JSONObject().put("t", "auth")
                     .put("pin", pin).put("ver", appVersion).toString())
@@ -72,7 +85,12 @@ object WsClient {
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 connected = false
-                onState?.invoke(false, t.message ?: "koneksi gagal")
+                val raw = t.message ?: "koneksi gagal"
+                val msg = if (raw.contains("failed to connect", true) ||
+                              raw.contains("ETIMEDOUT", true)) {
+                    "tidak sampai ke pc — tekan ⚙ lalu Diagnosa koneksi"
+                } else raw
+                onState?.invoke(false, msg)
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {

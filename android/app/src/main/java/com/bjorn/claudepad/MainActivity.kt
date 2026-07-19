@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.net.NetworkInterface
+import java.net.InetSocketAddress
 
 class MainActivity : AppCompatActivity() {
 
@@ -97,57 +97,64 @@ class MainActivity : AppCompatActivity() {
         tvStatus.text = "mencari pc di jaringan…"
         Thread {
             var found = false
-            var sock: DatagramSocket? = null
+            // Kirim dari SETIAP interface dengan socket yang TERIKAT ke alamat
+            // interface itu. Tanpa pengikatan, Android mengirim broadcast lewat
+            // jaringan seluler saat HP jadi hotspot, sehingga PC tak pernah
+            // menerima paket pencarian.
+            val sockets = mutableListOf<DatagramSocket>()
             try {
-                sock = DatagramSocket()
-                sock.broadcast = true
-                sock.soTimeout = 1800
-                val msg = "DISCOVER_CLAUDEPAD".toByteArray()
-
-                // target: broadcast global + broadcast tiap interface (hotspot
-                // sering tidak meneruskan 255.255.255.255)
-                val targets = mutableSetOf<InetAddress>()
-                try { targets.add(InetAddress.getByName("255.255.255.255")) } catch (e: Exception) {}
-                try {
-                    val ifs = NetworkInterface.getNetworkInterfaces()
-                    while (ifs.hasMoreElements()) {
-                        val ni = ifs.nextElement()
-                        if (!ni.isUp || ni.isLoopback) continue
-                        for (ia in ni.interfaceAddresses) {
-                            ia.broadcast?.let { targets.add(it) }
-                        }
-                    }
-                } catch (e: Exception) {}
-
-                val buf = ByteArray(256)
-                attempts@ for (attempt in 1..3) {
-                    for (t in targets) {
-                        try { sock.send(DatagramPacket(msg, msg.size, t, 8766)) }
-                        catch (e: Exception) {}
-                    }
+                val ifaces = Net.interfaces()
+                for (i in ifaces) {
                     try {
-                        val resp = DatagramPacket(buf, buf.size)
-                        sock.receive(resp)
-                        val parts = String(resp.data, 0, resp.length).split("|")
-                        if (parts.isNotEmpty() && parts[0] == "CLAUDEPAD") {
-                            val ip = resp.address.hostAddress ?: ""
-                            found = true
-                            runOnUiThread {
-                                etIp.setText(ip)
-                                Haptics.heavy()
-                                tvStatus.text = "ketemu: ${parts.getOrNull(1) ?: ""} ($ip)"
-                            }
-                            break@attempts
+                        val ds = DatagramSocket(null)
+                        ds.reuseAddress = true
+                        ds.broadcast = true
+                        ds.bind(InetSocketAddress(i.address, 0))
+                        ds.soTimeout = 700
+                        sockets.add(ds)
+                    } catch (e: Exception) { }
+                }
+                if (sockets.isEmpty()) {
+                    sockets.add(DatagramSocket().apply { broadcast = true; soTimeout = 700 })
+                }
+
+                val msg = "DISCOVER_CLAUDEPAD".toByteArray()
+                val buf = ByteArray(256)
+
+                attempts@ for (attempt in 1..3) {
+                    for ((idx, ds) in sockets.withIndex()) {
+                        val targets = mutableSetOf<InetAddress>()
+                        ifaces.getOrNull(idx)?.broadcast?.let { targets.add(it) }
+                        try { targets.add(InetAddress.getByName("255.255.255.255")) } catch (e: Exception) {}
+                        for (t in targets) {
+                            try { ds.send(DatagramPacket(msg, msg.size, t, 8766)) }
+                            catch (e: Exception) { }
                         }
-                    } catch (e: Exception) { /* timeout percobaan ini, ulangi */ }
+                    }
+                    for (ds in sockets) {
+                        try {
+                            val resp = DatagramPacket(buf, buf.size)
+                            ds.receive(resp)
+                            val parts = String(resp.data, 0, resp.length).split("|")
+                            if (parts.isNotEmpty() && parts[0] == "CLAUDEPAD") {
+                                val ip = resp.address.hostAddress ?: ""
+                                found = true
+                                runOnUiThread {
+                                    etIp.setText(ip)
+                                    Haptics.heavy()
+                                    tvStatus.text = "ketemu: ${parts.getOrNull(1) ?: ""} ($ip)"
+                                }
+                                break@attempts
+                            }
+                        } catch (e: Exception) { /* timeout socket ini */ }
+                    }
                 }
             } catch (e: Exception) {
             } finally {
-                sock?.close()
+                for (ds in sockets) try { ds.close() } catch (e: Exception) {}
             }
             if (!found) runOnUiThread {
-                tvStatus.text = "tidak ketemu — cek firewall pc (jalankan ulang " +
-                    "start_server.bat) & pastikan satu jaringan"
+                tvStatus.text = "tidak ketemu — tekan ⚙ lalu Diagnosa koneksi"
             }
         }.start()
     }
