@@ -1,5 +1,24 @@
 # Changelog
 
+## v2.2
+
+### Perbaikan (laporan pengguna)
+- **WiFi/Hotspot & cari otomatis** — `start_server.bat` kini menambah aturan
+  Windows Firewall otomatis (TCP 8765 & UDP 8766); pencarian di APK memakai
+  broadcast global + per-interface dengan 3 percobaan
+- **Blur background** — cross-window blur sering dimatikan vendor, kini
+  ditambah lapisan frost berbasis intensitas yang bekerja di semua perangkat
+- **Warna aksen wallpaper** — sumber diganti ke `WallpaperColors`
+  (Android 8.1+, tanpa izin), dengan penyesuaian saturasi/luminance
+
+### Fitur baru
+- Slider **intensitas blur** dan slider **kekuatan haptic** di setting
+- **Backspace** dikembalikan: tombol ⌫ dan penghapusan di kolom ketik
+- **Kunci versi**: server menolak koneksi bila versi APK ≠ versi server
+- Tombol **putuskan koneksi**: ⏻ di bar atas APK dan tombol Putuskan
+  di jendela server
+
+
 ## v2.1
 
 ### Perbaikan bug (laporan pengguna)
