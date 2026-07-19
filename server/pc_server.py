@@ -11,6 +11,7 @@ Butuh:     pip install websockets pycaw comtypes pystray pillow
 """
 
 import asyncio
+import http
 import json
 import queue
 import sys
@@ -23,10 +24,11 @@ except ImportError:
 
 import input_core as core
 from input_core import (CLIENTS, LOGQ, WS_PORT, HOSTNAME, log, local_ips,
-                        enable_usb_mode, discovery_loop, handle_message,
-                        volume_get)
+                        local_ips_detailed, enable_usb_mode, discovery_loop,
+                        handle_message, volume_get, firewall_status,
+                        fix_firewall)
 
-APP_VERSION = "2.2"
+APP_VERSION = "2.3"
 
 ACTIVE_SOCKETS = set()
 MAIN_LOOP = None
@@ -98,13 +100,36 @@ async def handle(ws):
         log(f"[-] {peer} terputus")
 
 
+async def health_request(path, request_headers):
+    """
+    Balas permintaan HTTP biasa di port WebSocket.
+    Dipakai untuk tes cepat: buka http://<ip-pc>:8765 di browser HP.
+    Kalau halaman ini muncul, jaringan & firewall SUDAH benar.
+    """
+    if path.startswith("/ws"):
+        return None                      # biarkan handshake WebSocket lewat
+    body = (
+        "CLAUDEPAD OK\n"
+        f"server  : v{APP_VERSION}\n"
+        f"host    : {HOSTNAME}\n"
+        f"port    : {WS_PORT}\n\n"
+        "Halaman ini tampil berarti HP SUDAH bisa menjangkau PC.\n"
+        "Kalau aplikasi tetap gagal, masalahnya bukan di firewall.\n"
+    ).encode()
+    return (http.HTTPStatus.OK,
+            [("Content-Type", "text/plain; charset=utf-8"),
+             ("Access-Control-Allow-Origin", "*")],
+            body)
+
+
 def start_server_thread():
     def run():
         async def main():
             global MAIN_LOOP
             MAIN_LOOP = asyncio.get_running_loop()
             async with websockets.serve(handle, "0.0.0.0", WS_PORT,
-                                        ping_interval=20, ping_timeout=20):
+                                        ping_interval=20, ping_timeout=20,
+                                        process_request=health_request):
                 await asyncio.Future()
         try:
             asyncio.run(main())
@@ -172,19 +197,49 @@ def run_gui():
 
     right = tk.Frame(inner, bg=CARD)
     right.pack(side="right", anchor="n")
-    tk.Label(right, text="ALAMAT", font=_mono(9), bg=CARD, fg=MUTED).pack(anchor="e")
+    tk.Label(right, text="ALAMAT UNTUK HP", font=_mono(9),
+             bg=CARD, fg=MUTED).pack(anchor="e")
+
+    detailed = local_ips_detailed()
     ips = local_ips()
-    ip_lbl = tk.Label(right, text="\n".join(ips) if ips else "tidak ada jaringan",
-                      font=_mono(12), bg=CARD, fg=FG, justify="right")
-    ip_lbl.pack(anchor="e")
-    tk.Label(right, text=f"port {WS_PORT}", font=_mono(9),
-             bg=CARD, fg=MUTED).pack(anchor="e", pady=(4, 0))
+    if not detailed:
+        tk.Label(right, text="tidak ada jaringan", font=_mono(12),
+                 bg=CARD, fg=FG).pack(anchor="e")
+    else:
+        for ip, name, virtual in detailed[:5]:
+            row = tk.Frame(right, bg=CARD)
+            row.pack(anchor="e")
+            tk.Label(row, text=("  (virtual, jangan dipakai)" if virtual else ""),
+                     font=_mono(8), bg=CARD, fg="#5a5a70").pack(side="left")
+            tk.Label(row, text=ip, font=_mono(13 if not virtual else 10),
+                     bg=CARD, fg=(FG if not virtual else "#5a5a70")).pack(side="left")
+        tk.Label(right, text=f"port {WS_PORT}", font=_mono(9),
+                 bg=CARD, fg=MUTED).pack(anchor="e", pady=(4, 0))
 
     # ---- status ----
     c2 = card(root)
     status_lbl = tk.Label(c2, text="  Menunggu koneksi", font=_mono(11),
                           bg=CARD, fg=AMBER, anchor="w")
-    status_lbl.pack(fill="x", padx=18, pady=14)
+    status_lbl.pack(fill="x", padx=18, pady=(14, 4))
+
+    fw_lbl = tk.Label(c2, text="  Memeriksa firewall...", font=_mono(10),
+                      bg=CARD, fg=MUTED, anchor="w")
+    fw_lbl.pack(fill="x", padx=18, pady=(0, 14))
+
+    def render_firewall():
+        ok = firewall_status()
+        if ok:
+            fw_lbl.config(text="  Firewall: port terbuka", fg=GREEN)
+        else:
+            fw_lbl.config(text="  Firewall: port TERTUTUP - klik Perbaiki Firewall",
+                          fg=AMBER)
+
+    def do_fix_firewall():
+        fw_lbl.config(text="  Meminta izin Administrator...", fg=MUTED)
+        def work():
+            fix_firewall()
+            root.after(1200, render_firewall)
+        threading.Thread(target=work, daemon=True).start()
 
     # ---- tombol ----
     btnbar = tk.Frame(root, bg=BG)
@@ -217,6 +272,7 @@ def run_gui():
              lambda: threading.Thread(target=enable_usb_mode, daemon=True).start(),
              accent=True)
     flat_btn(btnbar, "Putuskan", disconnect_clients)
+    flat_btn(btnbar, "Perbaiki Firewall", do_fix_firewall)
 
     # ---- log ----
     tk.Label(root, text="LOG", font=_mono(9), bg=BG, fg=MUTED,
@@ -302,6 +358,9 @@ def run_gui():
 
     start_server_thread()
     log(f"[i] Server aktif di port {WS_PORT} sebagai '{HOSTNAME}'")
+    if ips:
+        log(f"[i] Tes dari HP: buka http://{ips[0]}:{WS_PORT} di browser")
+    render_firewall()
     poll()
     root.mainloop()
 

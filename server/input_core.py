@@ -309,21 +309,139 @@ def discovery_loop():
             break
 
 
+# Rentang/nama adapter virtual yang HARUS diabaikan: WSL, Hyper-V, Docker,
+# VirtualBox, VMware. Menampilkan IP mereka membuat pengguna mengetik alamat
+# yang mustahil dijangkau dari HP.
+VIRTUAL_HINTS = (
+    "wsl", "hyper-v", "vethernet", "docker", "virtualbox", "vmware",
+    "loopback", "bluetooth", "vpn", "tailscale", "zerotier", "radmin",
+)
+
+
+def _ipconfig_adapters():
+    """[(nama_adapter, ipv4)] dari ipconfig. [] kalau bukan Windows/gagal."""
+    if not IS_WINDOWS:
+        return []
+    try:
+        out = subprocess.run(["ipconfig"], capture_output=True, text=True, timeout=10,
+                             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        text = out.stdout
+    except Exception:
+        return []
+    adapters, current = [], None
+    for line in text.splitlines():
+        if line and not line.startswith(" "):
+            current = line.strip().rstrip(":")
+        elif current and "IPv4" in line and ":" in line:
+            ip = line.split(":", 1)[1].strip().rstrip("(Preferred)").strip()
+            if ip.count(".") == 3:
+                adapters.append((current, ip))
+    return adapters
+
+
+def _is_virtual(name):
+    low = name.lower()
+    return any(h in low for h in VIRTUAL_HINTS)
+
+
+def _score(ip, name):
+    """Makin kecil makin diprioritaskan untuk ditampilkan ke pengguna."""
+    if _is_virtual(name):
+        return 100
+    # 192.168.43.x / 192.168.x.x = hotspot Android & WiFi rumah -> paling relevan
+    if ip.startswith("192.168.43."):
+        return 0
+    if ip.startswith("192.168."):
+        return 1
+    if ip.startswith("10."):
+        return 2
+    # 172.16-31.x sering dipakai WSL/Docker -> turunkan walau namanya tak dikenali
+    if ip.startswith("172."):
+        try:
+            second = int(ip.split(".")[1])
+            if 16 <= second <= 31:
+                return 90
+        except ValueError:
+            pass
+    return 50
+
+
+def local_ips_detailed():
+    """
+    [(ip, nama_adapter, virtual?)] terurut dari yang paling mungkin dipakai HP.
+    Adapter virtual tetap dikembalikan tapi ditandai, supaya GUI bisa meredupkannya.
+    """
+    found = []
+    seen = set()
+
+    for name, ip in _ipconfig_adapters():
+        if ip.startswith("127.") or ip in seen:
+            continue
+        seen.add(ip)
+        found.append((ip, name, _is_virtual(name) or _score(ip, name) >= 90))
+
+    if not found:                       # non-Windows / ipconfig gagal
+        try:
+            for info in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
+                ip = info[4][0]
+                if not ip.startswith("127.") and ip not in seen:
+                    seen.add(ip)
+                    found.append((ip, "network", _score(ip, "") >= 90))
+        except socket.gaierror:
+            pass
+
+    found.sort(key=lambda t: _score(t[0], t[1]))
+    return found
+
+
 def local_ips():
-    ips = set()
+    """Hanya IP yang layak dipakai (adapter virtual dibuang)."""
+    real = [ip for ip, _n, virt in local_ips_detailed() if not virt]
+    return real if real else [ip for ip, _n, _v in local_ips_detailed()]
+
+
+def firewall_status():
+    """True kalau aturan firewall CLAUDEPAD sudah ada."""
+    if not IS_WINDOWS:
+        return True
     try:
-        for info in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
-            ips.add(info[4][0])
-    except socket.gaierror:
-        pass
+        r = subprocess.run(
+            ["netsh", "advfirewall", "firewall", "show", "rule", "name=CLAUDEPAD TCP"],
+            capture_output=True, text=True, timeout=10,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        return r.returncode == 0 and "CLAUDEPAD" in r.stdout
+    except Exception:
+        return False
+
+
+def fix_firewall():
+    """
+    Tambahkan aturan firewall lewat UAC (butuh persetujuan Administrator).
+    Aturan dipasang untuk SEMUA profil (termasuk Public) karena jaringan
+    hotspot HP hampir selalu dikategorikan Public oleh Windows.
+    """
+    if not IS_WINDOWS:
+        return False
+    cmds = (
+        'netsh advfirewall firewall delete rule name=\"CLAUDEPAD TCP\" ; '
+        'netsh advfirewall firewall delete rule name=\"CLAUDEPAD UDP\" ; '
+        'netsh advfirewall firewall add rule name=\"CLAUDEPAD TCP\" dir=in '
+        'action=allow protocol=TCP localport=8765 profile=any ; '
+        'netsh advfirewall firewall add rule name=\"CLAUDEPAD UDP\" dir=in '
+        'action=allow protocol=UDP localport=8766 profile=any'
+    )
     try:
-        probe = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        probe.connect(("8.8.8.8", 80))
-        ips.add(probe.getsockname()[0])
-        probe.close()
-    except OSError:
-        pass
-    return sorted(ip for ip in ips if not ip.startswith("127."))
+        subprocess.run([
+            "powershell", "-NoProfile", "-Command",
+            f"Start-Process cmd -Verb RunAs -WindowStyle Hidden "
+            f"-ArgumentList '/c {cmds}'"
+        ], capture_output=True, timeout=60,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        log("[i] Aturan firewall dipasang (jika UAC disetujui)")
+        return True
+    except Exception as e:
+        log(f"[!] Gagal memasang aturan firewall: {e}")
+        return False
 
 
 def enable_usb_mode():
