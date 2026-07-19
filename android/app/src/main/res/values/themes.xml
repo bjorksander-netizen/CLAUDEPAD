@@ -1,6 +1,15 @@
 <resources>
-    <style name="Theme.ClaudePad" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="colorPrimary">#3D5AFE</item>
-        <item name="colorAccent">#3D5AFE</item>
+    <!-- Wallpaper HP terlihat menembus UI aplikasi (seperti Control Center iOS) -->
+    <style name="Theme.ClaudePad" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowShowWallpaper">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:textColor">@color/text</item>
     </style>
 </resources>
