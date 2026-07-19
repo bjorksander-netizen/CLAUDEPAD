@@ -135,25 +135,11 @@
         <TextView android:id="@+id/btnAdvance" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="⋯" />
     </LinearLayout>
 
-    <!-- ============ Panel Advance (toggleable) ============ -->
-    <LinearLayout
-        android:id="@+id/advancePanel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="6dp"
-        android:visibility="gone">
-
-        <TextView android:id="@+id/kEsc" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:text="esc" android:textSize="13sp" />
-        <TextView android:id="@+id/kTab" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="⇥" />
-        <TextView android:id="@+id/kWin" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="❖" />
-        <TextView android:id="@+id/kDel" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="⌦" />
-    </LinearLayout>
-
-    <!-- ============ Baris bawah: 2 kolom seimbang ============ -->
+    <!-- ============ Baris bawah: 2 kolom seimbang (tinggi TETAP agar
+         trackpad di atasnya selalu kebagian ruang) ============ -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="190dp"
         android:orientation="horizontal"
         android:layout_marginTop="8dp"
         android:baselineAligned="false">
@@ -162,7 +148,7 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="horizontal"
             android:background="@drawable/glass_panel"
             android:padding="10dp">
@@ -170,48 +156,53 @@
             <com.bjorn.claudepad.VolumeSlider
                 android:id="@+id/volumeSlider"
                 android:layout_width="44dp"
-                android:layout_height="match_parent"
-                android:minHeight="140dp" />
+                android:layout_height="match_parent" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:layout_marginStart="10dp">
 
-                <TextView android:id="@+id/mPlay" style="@style/KeyGlassAccent" android:layout_width="match_parent" android:layout_height="46dp" android:text="⏯" android:textSize="20sp" />
+                <TextView android:id="@+id/mPlay" style="@style/KeyGlassAccent"
+                    android:layout_width="match_parent" android:layout_height="0dp"
+                    android:layout_weight="1" android:text="⏯" android:textSize="20sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
                     android:orientation="horizontal"
                     android:layout_marginTop="6dp">
-                    <TextView android:id="@+id/mPrev" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_height="44dp" android:text="⏮" />
-                    <TextView android:id="@+id/mNext" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_height="44dp" android:layout_marginStart="6dp" android:text="⏭" />
+                    <TextView android:id="@+id/mPrev" style="@style/KeyGlass" android:layout_width="0dp"
+                        android:layout_weight="1" android:layout_height="match_parent" android:text="⏮" />
+                    <TextView android:id="@+id/mNext" style="@style/KeyGlass" android:layout_width="0dp"
+                        android:layout_weight="1" android:layout_height="match_parent"
+                        android:layout_marginStart="6dp" android:text="⏭" />
                 </LinearLayout>
 
-                <TextView android:id="@+id/mMute" style="@style/KeyGlass" android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="6dp" android:text="🔇" android:textSize="16sp" />
+                <TextView android:id="@+id/mMute" style="@style/KeyGlass"
+                    android:layout_width="match_parent" android:layout_height="0dp"
+                    android:layout_weight="1" android:layout_marginTop="6dp"
+                    android:text="🔇" android:textSize="16sp" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Kolom kanan: D-Pad -->
-        <LinearLayout
+        <!-- Kolom kanan: D-Pad (ukuran panel SAMA dengan kolom kiri) -->
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
             android:layout_marginStart="8dp"
             android:background="@drawable/glass_panel"
-            android:padding="10dp"
-            android:gravity="center">
+            android:padding="10dp">
 
             <com.bjorn.claudepad.DpadView
                 android:id="@+id/dpad"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:minHeight="150dp" />
-        </LinearLayout>
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center" />
+        </FrameLayout>
     </LinearLayout>
 </LinearLayout>
