@@ -1,5 +1,37 @@
 # Changelog
 
+## v2.3
+
+### Perbaikan koneksi WiFi/Hotspot (akar masalah ditemukan)
+Pesan error pengguna membongkar dua bug nyata:
+`failed to connect to /172.25.224.1 ... from /10.240.31.97`
+
+- **Server menampilkan IP adapter virtual.** `172.25.224.1` adalah adapter
+  WSL/Hyper-V, bukan alamat hotspot — alamat itu mustahil dijangkau HP.
+  Deteksi IP kini membaca nama adapter dari `ipconfig`, menyaring
+  WSL/Hyper-V/Docker/VirtualBox/VPN, dan mengurutkan alamat hotspot
+  (192.168.43.x) paling atas. Adapter virtual tetap ditampilkan tetapi
+  diredupkan dan diberi label "jangan dipakai".
+- **Socket HP keluar lewat jaringan seluler.** `10.240.31.97` adalah IP data
+  seluler: saat HP jadi hotspot sambil 4G menyala, Android mengikat socket
+  aplikasi ke jaringan default (seluler), sehingga paket menuju PC dikirim ke
+  internet. Kini aplikasi mencari alamat lokal yang **satu subnet** dengan PC
+  dan mengikat socket ke alamat itu, memaksa lalu lintas lewat interface
+  hotspot. Pencarian otomatis juga memakai socket terikat per-interface.
+
+### Diagnostik & firewall
+- **Tombol Diagnosa koneksi** di setting: melaporkan interface HP, rute yang
+  dipilih, tes TCP, tes balasan server, dan tes pencarian — lengkap dengan
+  kesimpulan. Laporan bisa disalin.
+- **Tes lewat browser**: buka `http://<ip-pc>:8765` di HP. Server kini
+  membalas halaman status, jadi jaringan bisa diuji tanpa aplikasi.
+- **Perbaiki Firewall** di jendela server: memasang aturan lewat UAC untuk
+  semua profil termasuk Public (jaringan hotspot selalu dianggap Public).
+  Status firewall ditampilkan langsung di jendela server.
+- `start_server.bat` kini meminta hak Administrator otomatis saat aturan
+  firewall belum ada.
+
+
 ## v2.2
 
 ### Perbaikan (laporan pengguna)
