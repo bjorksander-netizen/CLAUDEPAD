@@ -26,13 +26,30 @@ from input_core import (CLIENTS, LOGQ, WS_PORT, HOSTNAME, log, local_ips,
                         enable_usb_mode, discovery_loop, handle_message,
                         volume_get)
 
-APP_VERSION = "2.0"
+APP_VERSION = "2.2"
+
+ACTIVE_SOCKETS = set()
+MAIN_LOOP = None
+
+
+def disconnect_clients():
+    """Putuskan semua klien yang sedang terhubung (dipanggil dari GUI)."""
+    loop = MAIN_LOOP
+    if loop is None:
+        return
+    for ws in list(ACTIVE_SOCKETS):
+        try:
+            asyncio.run_coroutine_threadsafe(ws.close(code=1000, reason="disconnect"), loop)
+        except Exception:
+            pass
+    log("[i] Semua klien diputus dari server")
 
 # ---------------------------------------------------------------- Handler ----
 async def handle(ws):
     authed = False
     peer = ws.remote_address[0] if ws.remote_address else "?"
     transport = "usb" if peer.startswith("127.") else "wifi"
+    ACTIVE_SOCKETS.add(ws)
     log(f"[+] Koneksi dari {peer} ({transport})")
 
     def reply(obj):
@@ -45,6 +62,16 @@ async def handle(ws):
             except (ValueError, TypeError):
                 continue
             if not authed:
+                if m.get("t") == "auth":
+                    # Kunci versi: APK dan server harus sama persis.
+                    app_ver = str(m.get("ver", ""))
+                    if app_ver != APP_VERSION:
+                        await ws.send(json.dumps({
+                            "t": "auth_fail", "reason": "version",
+                            "server": APP_VERSION, "app": app_ver,
+                        }))
+                        log(f"[!] {peer} ditolak: versi APK '{app_ver}' != server {APP_VERSION}")
+                        continue
                 if m.get("t") == "auth" and str(m.get("pin", "")) == core.PIN:
                     authed = True
                     CLIENTS[peer] = transport
@@ -57,7 +84,7 @@ async def handle(ws):
                     }))
                     log(f"[+] {peer} terautentikasi")
                 else:
-                    await ws.send(json.dumps({"t": "auth_fail"}))
+                    await ws.send(json.dumps({"t": "auth_fail", "reason": "pin"}))
                     log(f"[!] {peer} PIN salah")
                 continue
             handle_message(m, reply)
@@ -66,6 +93,7 @@ async def handle(ws):
     except Exception as e:
         log(f"[!] Error dari {peer}: {e}")
     finally:
+        ACTIVE_SOCKETS.discard(ws)
         CLIENTS.pop(peer, None)
         log(f"[-] {peer} terputus")
 
@@ -73,6 +101,8 @@ async def handle(ws):
 def start_server_thread():
     def run():
         async def main():
+            global MAIN_LOOP
+            MAIN_LOOP = asyncio.get_running_loop()
             async with websockets.serve(handle, "0.0.0.0", WS_PORT,
                                         ping_interval=20, ping_timeout=20):
                 await asyncio.Future()
@@ -186,6 +216,7 @@ def run_gui():
     flat_btn(btnbar, "Mode USB",
              lambda: threading.Thread(target=enable_usb_mode, daemon=True).start(),
              accent=True)
+    flat_btn(btnbar, "Putuskan", disconnect_clients)
 
     # ---- log ----
     tk.Label(root, text="LOG", font=_mono(9), bg=BG, fg=MUTED,
