@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLAUDEPAD v2.0 — Laporan Pemeriksaan Bug</title>
+<style>
+  :root{
+    --bg:#0e0e14; --card:#191922; --card2:#20202c; --line:#2b2b3a;
+    --fg:#f2f2f7; --mut:#8e8ea0; --accent:#7c6cff;
+    --green:#4ade80; --amber:#fbbf24; --red:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:"JetBrains Mono",ui-monospace,"SF Mono",Consolas,monospace;
+    font-size:14px; line-height:1.6; padding:40px 20px;
+  }
+  .wrap{max-width:1000px;margin:0 auto}
+  h1{font-size:28px;margin:0;letter-spacing:.06em}
+  .sub{color:var(--mut);font-size:13px;margin:4px 0 32px}
+  h2{font-size:12px;color:var(--mut);letter-spacing:.14em;margin:36px 0 12px;font-weight:400}
+  .card{background:var(--card);border:1px solid var(--card2);border-radius:14px;padding:20px;margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .stat{background:var(--card);border:1px solid var(--card2);border-radius:14px;padding:18px}
+  .stat .n{font-size:30px;font-weight:700;line-height:1}
+  .stat .l{color:var(--mut);font-size:11px;letter-spacing:.1em;margin-top:6px}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;color:var(--mut);font-weight:400;font-size:11px;letter-spacing:.1em;padding:0 10px 10px;border-bottom:1px solid var(--line)}
+  td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;white-space:nowrap}
+  .fixed{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.3)}
+  .pass{background:rgba(124,108,255,.15);color:#a99cff;border:1px solid rgba(124,108,255,.3)}
+  .note{background:rgba(251,191,36,.13);color:var(--amber);border:1px solid rgba(251,191,36,.28)}
+  .sev-h{color:var(--red)} .sev-m{color:var(--amber)} .sev-l{color:var(--mut)}
+  code{background:var(--card2);padding:2px 6px;border-radius:5px;font-size:12.5px}
+  .ok{color:var(--green)}
+  .foot{color:var(--mut);font-size:12px;margin-top:36px;padding-top:18px;border-top:1px solid var(--line)}
+  ul{margin:8px 0;padding-left:20px} li{margin:5px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>CLAUDEPAD v2.0</h1>
+  <div class="sub">Laporan pemeriksaan bug &middot; pra-rilis</div>
+
+  <div class="grid">
+    <div class="stat"><div class="n ok">4</div><div class="l">BUG DIPERBAIKI</div></div>
+    <div class="stat"><div class="n">9</div><div class="l">CEK RESOURCE</div></div>
+    <div class="stat"><div class="n">34</div><div class="l">UJI FUNGSIONAL</div></div>
+    <div class="stat"><div class="n ok">0</div><div class="l">MASALAH TERSISA</div></div>
+  </div>
+
+  <h2>BUG YANG DITEMUKAN &amp; DIPERBAIKI</h2>
+  <div class="card">
+  <table>
+    <tr>
+      <th style="width:34px">#</th><th>Masalah</th><th style="width:88px">Tingkat</th>
+      <th>Perbaikan</th><th style="width:82px">Status</th>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><b>Modul server gagal di-import di non-Windows</b><br>
+          <code>import ctypes.wintypes</code> di level modul membuat <code>input_core.py</code>
+          tidak bisa dimuat sama sekali di Linux/CI, sehingga protokol mustahil diuji otomatis.</td>
+      <td class="sev-m">Sedang</td>
+      <td>Deteksi platform lewat <code>hasattr(ctypes,"windll")</code>, dengan kelas tipe pengganti
+          untuk non-Windows. Semua fungsi injeksi input jadi <i>no-op</i> yang aman.</td>
+      <td><span class="tag fixed">selesai</span></td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><b>Slider volume membanjiri server</b><br>
+          <code>onValueChanged</code> mengirim paket <code>volset</code> pada setiap piksel
+          pergerakan jari — bisa ratusan pesan per detik, memicu lag dan antrean WebSocket menumpuk.</td>
+      <td class="sev-h">Tinggi</td>
+      <td>Throttle 40&nbsp;ms plus pengiriman nilai akhir saat jari dilepas,
+          sehingga posisi slider dijamin sinkron tanpa membanjiri jaringan.</td>
+      <td><span class="tag fixed">selesai</span></td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><b>Layar berkedip saat mengubah orientasi</b><br>
+          <code>ControlActivity</code> tidak mendeklarasikan <code>orientation</code> pada
+          <code>configChanges</code>, sehingga Activity dibuat ulang tiap kali tombol ⤢ ditekan —
+          koneksi sempat ditinjau ulang dan tampilan berkedip.</td>
+      <td class="sev-m">Sedang</td>
+      <td><code>orientation</code> ditambahkan ke <code>configChanges</code>.
+          Rotasi kini hanya me-<i>layout</i> ulang tanpa membuat ulang Activity.</td>
+      <td><span class="tag fixed">selesai</span></td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><b>Callback status koneksi bocor antar-layar</b><br>
+          Setelah kembali dari <code>ControlActivity</code>, <code>WsClient.onState</code> masih
+          menunjuk closure milik Activity yang sudah mati — status koneksi berhenti ter-update
+          di layar utama dan Activity lama tertahan di memori.</td>
+      <td class="sev-m">Sedang</td>
+      <td><code>MainActivity.onResume()</code> mendaftarkan ulang callback miliknya
+          dan mengosongkan <code>onMessage</code>.</td>
+      <td><span class="tag fixed">selesai</span></td>
+    </tr>
+  </table>
+  </div>
+
+  <h2>UJI PROTOKOL END-TO-END &mdash; SERVER DIJALANKAN SUNGGUHAN</h2>
+  <div class="card">
+  <table>
+    <tr><th style="width:34px">#</th><th>Skenario</th><th>Hasil</th><th style="width:70px">Status</th></tr>
+    <tr><td>1</td><td>PIN salah ditolak</td><td>server membalas <code>auth_fail</code></td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>2</td><td>PIN benar &amp; metadata</td><td><code>auth_ok</code> membawa host, transport, versi, volume</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>3</td><td>Ping / pong</td><td>balasan <code>pong</code> diterima</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>4</td><td>8 pesan kontrol berurutan</td><td>koneksi tetap hidup, tidak ada exception</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>5</td><td>JSON rusak dikirim</td><td>diabaikan, server tidak putus</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>6</td><td>Registry klien</td><td>klien tercatat dengan jalur koneksi yang benar</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>7</td><td>Pembersihan saat putus</td><td>registry kosong kembali, tanpa kebocoran</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>8</td><td>Discovery UDP</td><td>balasan <code>CLAUDEPAD|host|8765</code></td><td><span class="tag pass">lolos</span></td></tr>
+  </table>
+  </div>
+
+  <h2>UJI DISPATCH PESAN &mdash; 26 VARIAN</h2>
+  <div class="card">
+    Seluruh 26 varian pesan diproses tanpa exception, termasuk masukan tidak valid:
+    <ul>
+      <li>Gerakan &amp; klik mouse (kiri, kanan, tengah, ganda, tekan/lepas)</li>
+      <li>Scroll, pinch zoom, keempat gesture tiga jari</li>
+      <li>Ketik teks, tombol tunggal, kombinasi modifier (Ctrl, Win)</li>
+      <li>Kontrol media &amp; volume absolut</li>
+      <li><b>Kasus tepi:</b> nama gesture tak dikenal, aksi media tak dikenal,
+          volume di luar rentang (999 dipotong ke 100), tipe pesan tak dikenal,
+          dan pesan kosong <code>{}</code> — semuanya ditangani tanpa crash</li>
+    </ul>
+  </div>
+
+  <h2>PEMERIKSAAN RESOURCE ANDROID</h2>
+  <div class="card">
+  <table>
+    <tr><th>Pemeriksaan</th><th>Hasil</th><th style="width:70px">Status</th></tr>
+    <tr><td>Setiap <code>R.id</code> di Kotlin ada di layout</td><td>seluruh id cocok</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>Referensi <code>R.color</code> &amp; <code>R.layout</code></td><td>semua terdefinisi</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>Setiap <code>@style/</code> punya definisi</td><td>7 style terverifikasi</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>Setiap <code>@drawable/</code> ada filenya</td><td>7 drawable terverifikasi</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>Setiap <code>@color/</code> dan <code>@dimen/</code></td><td>semua terdefinisi</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>Activity di manifest punya kelas Kotlin</td><td>3 activity terverifikasi</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>Custom view di XML punya kelas</td><td>TrackpadView, DpadView, VolumeSlider</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>Seluruh XML well-formed</td><td>layout, values, drawable, manifest</td><td><span class="tag pass">lolos</span></td></tr>
+    <tr><td>Sintaks Python</td><td><code>pc_server.py</code>, <code>input_core.py</code></td><td><span class="tag pass">lolos</span></td></tr>
+  </table>
+  </div>
+
+  <h2>CATATAN &amp; KETERBATASAN YANG DIKETAHUI</h2>
+  <div class="card">
+  <table>
+    <tr><th>Hal</th><th>Penjelasan</th><th style="width:82px">Status</th></tr>
+    <tr>
+      <td>Font Berkeley Mono</td>
+      <td>Font berbayar dan tidak dapat didistribusikan. Diganti <b>JetBrains Mono</b>
+          (open source, karakter visual paling mendekati), diunduh otomatis oleh task
+          Gradle <code>fetchFont</code>. Bila offline, aplikasi memakai monospace bawaan
+          sistem dan build tetap berhasil.</td>
+      <td><span class="tag note">disengaja</span></td>
+    </tr>
+    <tr>
+      <td>Volume absolut butuh <code>pycaw</code></td>
+      <td>Sudah masuk <code>requirements.txt</code> dan dipasang otomatis oleh
+          <code>start_server.bat</code>. Bila gagal, server membalas <code>volerr</code>
+          dan mencatat peringatan alih-alih crash.</td>
+      <td><span class="tag fixed">ditangani</span></td>
+    </tr>
+    <tr>
+      <td>System tray butuh <code>pystray</code> + <code>pillow</code></td>
+      <td>Bila tidak tersedia, jendela hanya di-<i>iconify</i> biasa dan log memberi tahu
+          pengguna — tidak crash.</td>
+      <td><span class="tag fixed">ditangani</span></td>
+    </tr>
+    <tr>
+      <td>Latar wallpaper tembus pandang</td>
+      <td>Memakai <code>windowShowWallpaper</code>. Sebagian launcher pihak ketiga dan
+          mode hemat daya agresif dapat menonaktifkan wallpaper di balik aplikasi;
+          pada kasus itu latar tampil gelap transparan. Sudah dicatat di README.</td>
+      <td><span class="tag note">batas platform</span></td>
+    </tr>
+    <tr>
+      <td>Kompilasi Kotlin</td>
+      <td>Android SDK tidak tersedia di lingkungan pemeriksaan ini, sehingga verifikasi
+          dilakukan lewat audit resource menyeluruh dan pemeriksaan silang referensi.
+          Kompilasi sesungguhnya dijalankan oleh GitHub Actions.</td>
+      <td><span class="tag note">di CI</span></td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="foot">
+    Dihasilkan otomatis saat pemeriksaan pra-rilis CLAUDEPAD v2.0 &middot;
+    server v2.0 &middot; APK versionCode 2 / versionName 2.0
+  </div>
+</div>
+</body>
+</html>
