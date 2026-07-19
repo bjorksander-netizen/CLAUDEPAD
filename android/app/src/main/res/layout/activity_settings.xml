@@ -152,6 +152,11 @@
                 <TextView style="@style/RowValue" android:text="↗" />
             </LinearLayout>
             <View style="@style/Divider" />
+            <LinearLayout android:id="@+id/rowDiagnose" style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="diagnosa koneksi" />
+                <TextView style="@style/RowValue" android:text="›" />
+            </LinearLayout>
+            <View style="@style/Divider" />
             <LinearLayout android:id="@+id/rowGesture" style="@style/RowItem">
                 <TextView style="@style/RowTitle" android:text="panduan gesture" />
                 <TextView style="@style/RowValue" android:text="›" />
