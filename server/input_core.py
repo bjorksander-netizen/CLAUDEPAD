@@ -189,8 +189,16 @@ def _get_volume_iface():
         return _volume_iface
     try:
         from ctypes import cast, POINTER
+        import comtypes
         from comtypes import CLSCTX_ALL
         from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+        # WAJIB: server jalan di thread asyncio sendiri, dan COM harus
+        # diinisialisasi per-thread. Tanpa ini Activate() selalu gagal
+        # dan slider volume mati total.
+        try:
+            comtypes.CoInitialize()
+        except OSError:
+            pass  # sudah terinisialisasi di thread ini
         devices = AudioUtilities.GetSpeakers()
         iface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
         _volume_iface = cast(iface, POINTER(IAudioEndpointVolume))
