@@ -64,12 +64,18 @@ jobs:
 
               async with websockets.connect("ws://127.0.0.1:8765") as ws:
                   bad = "0000" if core.PIN != "0000" else "1111"
-                  await ws.send(json.dumps({"t":"auth","pin":bad}))
+                  await ws.send(json.dumps({"t":"auth","pin":bad,"ver":srv.APP_VERSION}))
                   assert json.loads(await ws.recv())["t"] == "auth_fail"
               print("OK - PIN salah ditolak")
 
               async with websockets.connect("ws://127.0.0.1:8765") as ws:
-                  await ws.send(json.dumps({"t":"auth","pin":core.PIN}))
+                  await ws.send(json.dumps({"t":"auth","pin":core.PIN,"ver":"9.9"}))
+                  r = json.loads(await ws.recv())
+                  assert r["t"] == "auth_fail" and r.get("reason") == "version"
+              print("OK - versi APK beda ditolak")
+
+              async with websockets.connect("ws://127.0.0.1:8765") as ws:
+                  await ws.send(json.dumps({"t":"auth","pin":core.PIN,"ver":srv.APP_VERSION}))
                   r = json.loads(await ws.recv())
                   assert r["t"] == "auth_ok" and r["host"] == core.HOSTNAME
                   assert r["version"] == srv.APP_VERSION
