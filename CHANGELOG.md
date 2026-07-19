@@ -1,5 +1,23 @@
 # Changelog
 
+## v2.1
+
+### Perbaikan bug (laporan pengguna)
+- **Trackpad hilang** — panel baris bawah memakai weight di parent wrap_content
+  sehingga melahap seluruh tinggi layar; tinggi baris bawah kini tetap (190dp)
+- **D-Pad terlalu besar** — panel D-Pad kini berukuran sama dengan panel media
+- **Slider volume mati** — server memanggil COM audio dari thread tanpa
+  CoInitialize sehingga pycaw selalu gagal; ditambah mode cadangan bertingkat
+  bila server memang tanpa pycaw
+
+### Revisi & fitur
+- Menu Advance kini **pop-up persegi** (bukan dropdown baris)
+- **Wallpaper diblur** di belakang aplikasi (Android 12+)
+- Fitur orientasi diluruskan: hanya **arah input trackpad** yang diputar 90° —
+  layout tidak berubah; swipe kanan = kursor ke atas saat aktif
+- **Warna aksen mengikuti wallpaper** perangkat (Material You, Android 12+)
+
+
 ## v2.0
 
 ### Tampilan
