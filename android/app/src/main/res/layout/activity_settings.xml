@@ -89,8 +89,8 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ==== Sensitivitas ==== -->
-        <TextView style="@style/SectionLabel" android:text="SENSITIVITAS TRACKPAD" />
+        <!-- ==== Sensitivitas & intensitas ==== -->
+        <TextView style="@style/SectionLabel" android:text="SENSITIVITAS &amp; INTENSITAS" />
 
         <LinearLayout style="@style/SettingCard">
             <LinearLayout style="@style/RowItem">
@@ -105,6 +105,32 @@
                 android:layout_marginBottom="8dp"
                 android:max="40"
                 android:progress="14" />
+            <View style="@style/Divider" />
+            <LinearLayout style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="blur background" />
+                <TextView android:id="@+id/tvBlur" style="@style/RowValue" android:text="55%" />
+            </LinearLayout>
+            <SeekBar
+                android:id="@+id/seekBlur"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="14dp"
+                android:layout_marginBottom="8dp"
+                android:max="100"
+                android:progress="55" />
+            <View style="@style/Divider" />
+            <LinearLayout style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="kekuatan haptic" />
+                <TextView android:id="@+id/tvHapticStr" style="@style/RowValue" android:text="100%" />
+            </LinearLayout>
+            <SeekBar
+                android:id="@+id/seekHaptic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="14dp"
+                android:layout_marginBottom="8dp"
+                android:max="200"
+                android:progress="100" />
         </LinearLayout>
 
         <!-- ==== Tentang ==== -->
