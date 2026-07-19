@@ -1,104 +1,217 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootControl"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:background="@drawable/bg_scrim"
+    android:fitsSystemWindows="true"
+    android:padding="10dp">
 
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="wrap_content"
+    <!-- ============ Bar atas ============ -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="..." />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="4dp"
+        android:paddingBottom="8dp">
 
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text"
+            android:textSize="13sp"
+            android:text="..." />
+
+        <TextView
+            android:id="@+id/btnRotate"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/glass_round"
+            android:gravity="center"
+            android:text="⤢"
+            android:textColor="@color/text"
+            android:textSize="18sp"
+            android:contentDescription="Ubah orientasi" />
+
+        <TextView
+            android:id="@+id/btnSettings"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/glass_round"
+            android:gravity="center"
+            android:text="⚙"
+            android:textColor="@color/text"
+            android:textSize="18sp"
+            android:contentDescription="Setting" />
+    </LinearLayout>
+
+    <!-- ============ Trackpad ============ -->
     <com.bjorn.claudepad.TrackpadView
         android:id="@+id/trackpad"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="4dp" />
+        android:minHeight="150dp" />
 
+    <!-- ============ Tombol mouse ============ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button android:id="@+id/btnLeft" android:layout_width="0dp" android:layout_weight="2"
-            android:layout_height="wrap_content" android:text="Klik Kiri" />
-        <Button android:id="@+id/btnMiddle" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:text="Tengah" />
-        <Button android:id="@+id/btnRight" android:layout_width="0dp" android:layout_weight="2"
-            android:layout_height="wrap_content" android:text="Klik Kanan" />
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/btnLeft"
+            style="@style/KeyGlass"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:text="◐" />
+
+        <TextView
+            android:id="@+id/btnMiddle"
+            style="@style/KeyGlass"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:text="⊙" />
+
+        <TextView
+            android:id="@+id/btnRight"
+            style="@style/KeyGlass"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_marginStart="6dp"
+            android:text="◑" />
     </LinearLayout>
 
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="none">
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <Button android:id="@+id/kEsc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Esc" />
-            <Button android:id="@+id/kTab" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tab" />
-            <Button android:id="@+id/kWin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Win" />
-            <Button android:id="@+id/kAltTab" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Alt+Tab" />
-            <Button android:id="@+id/kCtrlC" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ctrl+C" />
-            <Button android:id="@+id/kCtrlV" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ctrl+V" />
-            <Button android:id="@+id/kCtrlZ" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ctrl+Z" />
-            <Button android:id="@+id/kEnter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Enter" />
-            <Button android:id="@+id/kBksp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⌫" />
-            <Button android:id="@+id/kDel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Del" />
-            <Button android:id="@+id/kUp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="↑" />
-            <Button android:id="@+id/kDown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="↓" />
-            <Button android:id="@+id/kLeft" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="←" />
-            <Button android:id="@+id/kRight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="→" />
-        </LinearLayout>
-    </HorizontalScrollView>
-
+    <!-- ============ Keyboard (di bawah kontrol mouse) ============ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="6dp"
+        android:gravity="center_vertical">
+
         <EditText
             android:id="@+id/etType"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:hint="Ketik di sini → langsung muncul di PC"
+            android:layout_height="46dp"
+            android:background="@drawable/glass_input"
+            android:hint="ketik di sini"
+            android:textColorHint="@color/text_muted"
+            android:textColor="@color/text"
+            android:textSize="14sp"
+            android:paddingHorizontal="14dp"
             android:inputType="text"
+            android:maxLines="1"
             android:importantForAutofill="no" />
-        <Button
-            android:id="@+id/btnEnterSend"
-            android:layout_width="wrap_content"
+
+        <TextView
+            android:id="@+id/kEnter"
+            style="@style/KeyGlassAccent"
+            android:layout_width="56dp"
+            android:layout_marginStart="6dp"
+            android:text="⏎" />
+    </LinearLayout>
+
+    <!-- ============ Baris pintasan + dropdown Advance ============ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="6dp">
+
+        <TextView android:id="@+id/kCopy"   style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:text="⧉" />
+        <TextView android:id="@+id/kPaste"  style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="⎘" />
+        <TextView android:id="@+id/kUndo"   style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="↩" />
+        <TextView android:id="@+id/kWinTab" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="⊞" />
+        <TextView android:id="@+id/btnAdvance" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="⋯" />
+    </LinearLayout>
+
+    <!-- ============ Panel Advance (toggleable) ============ -->
+    <LinearLayout
+        android:id="@+id/advancePanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="6dp"
+        android:visibility="gone">
+
+        <TextView android:id="@+id/kEsc" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:text="esc" android:textSize="13sp" />
+        <TextView android:id="@+id/kTab" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="⇥" />
+        <TextView android:id="@+id/kWin" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="❖" />
+        <TextView android:id="@+id/kDel" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="⌦" />
+    </LinearLayout>
+
+    <!-- ============ Baris bawah: 2 kolom seimbang ============ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:baselineAligned="false">
+
+        <!-- Kolom kiri: volume + media -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Enter" />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:background="@drawable/glass_panel"
+            android:padding="10dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button android:id="@+id/btnClipToPc" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:text="Clipboard HP → PC" />
-        <Button android:id="@+id/btnClipToHp" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:text="Clipboard PC → HP" />
-    </LinearLayout>
+            <com.bjorn.claudepad.VolumeSlider
+                android:id="@+id/volumeSlider"
+                android:layout_width="44dp"
+                android:layout_height="match_parent"
+                android:minHeight="140dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button android:id="@+id/mPrev" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:text="⏮" />
-        <Button android:id="@+id/mPlay" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:text="⏯" />
-        <Button android:id="@+id/mNext" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:text="⏭" />
-        <Button android:id="@+id/mVolDown" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:text="🔉" />
-        <Button android:id="@+id/mMute" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:text="🔇" />
-        <Button android:id="@+id/mVolUp" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:text="🔊" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+
+                <TextView android:id="@+id/mPlay" style="@style/KeyGlassAccent" android:layout_width="match_parent" android:layout_height="46dp" android:text="⏯" android:textSize="20sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="6dp">
+                    <TextView android:id="@+id/mPrev" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_height="44dp" android:text="⏮" />
+                    <TextView android:id="@+id/mNext" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_height="44dp" android:layout_marginStart="6dp" android:text="⏭" />
+                </LinearLayout>
+
+                <TextView android:id="@+id/mMute" style="@style/KeyGlass" android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="6dp" android:text="🔇" android:textSize="16sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Kolom kanan: D-Pad -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/glass_panel"
+            android:padding="10dp"
+            android:gravity="center">
+
+            <com.bjorn.claudepad.DpadView
+                android:id="@+id/dpad"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:minHeight="150dp" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

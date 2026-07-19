@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootSettings"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_scrim"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="18dp">
+
+            <TextView
+                android:id="@+id/btnBack"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:background="@drawable/glass_round"
+                android:gravity="center"
+                android:text="‹"
+                android:textColor="@color/text"
+                android:textSize="22sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:text="setting"
+                android:textColor="@color/text"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- ==== Koneksi ==== -->
+        <TextView style="@style/SectionLabel" android:text="KONEKSI" />
+
+        <LinearLayout style="@style/SettingCard">
+            <LinearLayout style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="status" />
+                <TextView android:id="@+id/tvConnStatus" style="@style/RowValue" android:text="—" />
+            </LinearLayout>
+            <View style="@style/Divider" />
+            <LinearLayout style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="via" />
+                <TextView android:id="@+id/tvTransport" style="@style/RowValue" android:text="—" />
+            </LinearLayout>
+            <View style="@style/Divider" />
+            <LinearLayout style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="pc" />
+                <TextView android:id="@+id/tvHost" style="@style/RowValue" android:text="—" />
+            </LinearLayout>
+            <View style="@style/Divider" />
+            <LinearLayout style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="server" />
+                <TextView android:id="@+id/tvServerVer" style="@style/RowValue" android:text="—" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ==== Perilaku ==== -->
+        <TextView style="@style/SectionLabel" android:text="PERILAKU" />
+
+        <LinearLayout style="@style/SettingCard">
+            <LinearLayout android:id="@+id/rowHaptic" style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="getaran haptic" />
+                <TextView android:id="@+id/tvHaptic" style="@style/RowToggle" android:text="aktif" />
+            </LinearLayout>
+            <View style="@style/Divider" />
+            <LinearLayout android:id="@+id/rowNatural" style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="scroll natural" />
+                <TextView android:id="@+id/tvNatural" style="@style/RowToggle" android:text="nonaktif" />
+            </LinearLayout>
+            <View style="@style/Divider" />
+            <LinearLayout android:id="@+id/rowAwake" style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="layar tetap menyala" />
+                <TextView android:id="@+id/tvAwake" style="@style/RowToggle" android:text="aktif" />
+            </LinearLayout>
+            <View style="@style/Divider" />
+            <LinearLayout android:id="@+id/rowOrientation" style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="orientasi" />
+                <TextView android:id="@+id/tvOrientation" style="@style/RowToggle" android:text="vertikal" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ==== Sensitivitas ==== -->
+        <TextView style="@style/SectionLabel" android:text="SENSITIVITAS TRACKPAD" />
+
+        <LinearLayout style="@style/SettingCard">
+            <LinearLayout style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="kecepatan kursor" />
+                <TextView android:id="@+id/tvSens" style="@style/RowValue" android:text="1.4x" />
+            </LinearLayout>
+            <SeekBar
+                android:id="@+id/seekSens"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="14dp"
+                android:layout_marginBottom="8dp"
+                android:max="40"
+                android:progress="14" />
+        </LinearLayout>
+
+        <!-- ==== Tentang ==== -->
+        <TextView style="@style/SectionLabel" android:text="TENTANG" />
+
+        <LinearLayout style="@style/SettingCard">
+            <LinearLayout style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="versi apk" />
+                <TextView android:id="@+id/tvVersion" style="@style/RowValue" android:text="—" />
+            </LinearLayout>
+            <View style="@style/Divider" />
+            <LinearLayout android:id="@+id/rowChangelog" style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="change log" />
+                <TextView style="@style/RowValue" android:text="›" />
+            </LinearLayout>
+            <View style="@style/Divider" />
+            <LinearLayout android:id="@+id/rowHelp" style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="bantuan (readme)" />
+                <TextView style="@style/RowValue" android:text="↗" />
+            </LinearLayout>
+            <View style="@style/Divider" />
+            <LinearLayout android:id="@+id/rowGesture" style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="panduan gesture" />
+                <TextView style="@style/RowValue" android:text="›" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/btnDisconnect"
+            style="@style/KeyGlass"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="24dp"
+            android:text="putuskan koneksi"
+            android:textColor="@color/red"
+            android:textSize="14sp" />
+    </LinearLayout>
+</ScrollView>
