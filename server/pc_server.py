@@ -28,7 +28,7 @@ from input_core import (CLIENTS, LOGQ, WS_PORT, HOSTNAME, log, local_ips,
                         handle_message, volume_get, firewall_status,
                         fix_firewall)
 
-APP_VERSION = "2.4"
+APP_VERSION = "2.5"
 
 ACTIVE_SOCKETS = set()
 MAIN_LOOP = None
