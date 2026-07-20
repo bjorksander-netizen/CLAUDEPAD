@@ -219,7 +219,16 @@ jobs:
           for i in 1 2 3 4 5; do
             echo "--- percobaan publikasi $i ---"
             if gh release view latest >/dev/null 2>&1; then
-              gh release delete-asset latest CLAUDEPAD.apk --yes >/dev/null 2>&1 || true
+              # Buang SEMUA berkas .apk lama dari release ini, termasuk yang
+              # bernomor versi lawas, supaya hanya ada satu APK terbaru dan
+              # pengguna tidak salah unduh.
+              for OLD in $(gh release view latest --json assets \
+                             --jq '.assets[].name' 2>/dev/null | grep '\.apk$' || true); do
+                if [ "$OLD" != "CLAUDEPAD-v$V.apk" ]; then
+                  echo "menghapus aset lama: $OLD"
+                  gh release delete-asset latest "$OLD" --yes >/dev/null 2>&1 || true
+                fi
+              done
               if gh release edit latest --title "CLAUDEPAD v$V" --notes "$NOTES" \
                  && gh release upload latest "CLAUDEPAD-v$V.apk" --clobber; then
                 echo "Release v$V berhasil diperbarui"; exit 0
