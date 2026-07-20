@@ -1,5 +1,19 @@
 # Changelog
 
+Semua perubahan penting CLAUDEPAD. Versi APK dan server selalu dinaikkan
+bersamaan, dan server menolak koneksi bila keduanya berbeda.
+
+| Versi | Inti perubahan |
+|---|---|
+| **v2.4** | Perbaikan fatal HTTP 500 di semua koneksi; firewall benar; logo aplikasi |
+| v2.3 | Koneksi WiFi/Hotspot: adapter virtual disaring, socket diikat ke interface hotspot; mode diagnosa |
+| v2.2 | Slider blur & haptic, backspace kembali, kunci versi, tombol putuskan koneksi |
+| v2.1 | Perbaikan trackpad hilang & D-Pad raksasa; slider volume; pop-up Advance |
+| v2.0 | Tema Control Center, gesture Precision Touchpad, D-Pad, haptic, halaman Setting |
+| v1.0 | Rilis pertama |
+
+---
+
 ## v2.4
 
 ### Perbaikan fatal

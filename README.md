@@ -1,39 +1,50 @@
 # CLAUDEPAD
 
-HP Android menjadi **trackpad, keyboard, media control & volume** untuk PC Windows 10/11.
-Koneksi lewat **WiFi / Hotspot** atau **kabel USB**.
+HP Android menjadi **trackpad, keyboard, media control, dan pengatur volume**
+untuk PC Windows 10/11. Terhubung lewat **WiFi / Hotspot** atau **kabel USB**.
 
-Tampilan bergaya Control Center: panel kaca tembus pandang yang memperlihatkan wallpaper HP.
+Tampilan bergaya Control Center: panel kaca dengan wallpaper HP yang menembus
+di belakangnya, warna aksen mengikuti wallpaper, dan font monospace.
+
+**[⬇ Unduh APK terbaru](../../releases/tag/latest)** — dibangun otomatis oleh GitHub Actions.
+
+> **Versi APK dan server harus sama.** Server menolak koneksi bila berbeda.
+> Setiap kali memperbarui APK, perbarui juga folder `server/`.
 
 ---
 
-## Unduh
+## 1. Menyiapkan PC
 
-**APK:** [Releases › latest](../../releases/tag/latest) — dibangun otomatis oleh GitHub Actions.
+1. Install **Python 3** dari [python.org](https://python.org) — centang **Add Python to PATH**.
+2. Dobel-klik **`server/start_server.bat`**.
+   - Saat pertama kali, Windows meminta izin **Administrator** untuk membuka
+     firewall. Setujui — tanpa ini koneksi WiFi tidak akan bisa.
+   - Dependency terpasang otomatis, lalu server jalan **tanpa jendela konsol**.
+3. Jendela CLAUDEPAD menampilkan **PIN**, **alamat IP**, dan **status firewall**.
 
----
+**Bacalah alamat IP dengan benar.** Alamat yang diberi label *virtual, jangan
+dipakai* berasal dari adapter WSL/Hyper-V/Docker dan **tidak bisa** dijangkau HP.
+Pakai alamat yang tampil terang di baris paling atas.
 
-## 1. Setup PC
+Menutup jendela = minimize ke **system tray**. Klik ikon tray untuk membukanya
+lagi, klik kanan → **Keluar** untuk benar-benar menutup.
 
-1. Install Python 3 dari [python.org](https://python.org) (centang **Add Python to PATH**).
-2. Dobel-klik `server/start_server.bat`.
-   Dependency terpasang otomatis, lalu server jalan **tanpa jendela konsol**.
-3. Jendela CLAUDEPAD menampilkan **PIN** dan **alamat IP**.
-4. Saat Windows Firewall bertanya, pilih **Allow access** (Private network).
-
-Tutup jendela = minimize ke **system tray**. Klik ikon tray untuk membuka lagi,
-atau klik kanan → Keluar untuk benar-benar menutup.
-
-## 2. Hubungkan HP
+## 2. Menghubungkan HP
 
 ### WiFi / Hotspot
-HP & PC harus satu jaringan. Buka app → **cari otomatis** (atau ketik IP) → isi **PIN** → **hubungkan**.
+HP dan PC harus berada di jaringan yang sama — boleh lewat router yang sama,
+hotspot HP, atau hotspot PC.
+
+Buka aplikasi → **cari otomatis** (atau ketik IP dari jendela server) →
+isi **PIN** → **hubungkan**.
 
 ### USB
 1. Di HP: aktifkan **Developer Options → USB Debugging**.
 2. Colok kabel, setujui prompt di HP.
-3. Di PC: klik **Mode USB** di jendela server (butuh [ADB platform-tools](https://developer.android.com/tools/releases/platform-tools) di PATH).
-4. Di app: tekan **usb**, isi PIN.
+3. Di PC: klik **Mode USB** di jendela server.
+   Butuh [ADB platform-tools](https://developer.android.com/tools/releases/platform-tools)
+   di PATH atau di folder `server/`.
+4. Di aplikasi: tekan **usb**, isi PIN.
 
 ---
 
@@ -51,29 +62,64 @@ Mengikuti standar **Windows Precision Touchpad**:
 | 3 jari ke atas | Task View |
 | 3 jari ke bawah | Show Desktop |
 | 3 jari kiri / kanan | ganti aplikasi |
-| tap 2x lalu tahan | drag & drop |
+| tap 2× lalu tahan | drag & drop |
 
 ## Tombol
 
-| Simbol | Fungsi | | Simbol | Fungsi |
+| | | | | |
 |---|---|---|---|---|
 | ◐ | klik kiri | | ⧉ | salin (Ctrl+C) |
 | ⊙ | klik tengah | | ⎘ | tempel (Ctrl+V) |
 | ◑ | klik kanan | | ↩ | urungkan (Ctrl+Z) |
-| ⏎ | Enter | | ⊞ | Win+Tab |
-| ⋯ | buka menu Advance | | ⤢ | ubah orientasi |
-| ⚙ | setting | | | |
+| ⌫ | backspace | | ⊞ | Win+Tab |
+| ⏎ | Enter | | ⋯ | panel Advance |
+| ⤢ | rotasi input trackpad | | ⚙ | setting |
+| ⏻ | putuskan koneksi | | | |
 
-Menu **Advance** (⋯) berisi: `esc` · `⇥` Tab · `❖` Win · `⌦` Delete.
+Panel **Advance** (⋯) muncul sebagai pop-up berisi `esc` · `⇥` Tab · `❖` Win · `⌦` Delete.
 
-Kolom bawah kiri: **slider volume** (absolut) + kontrol media.
-Kolom bawah kanan: **D-Pad** tombol arah dengan auto-repeat saat ditahan.
+**Baris bawah** terbagi dua kolom seimbang: slider volume dan kontrol media di
+kiri, **D-Pad** tombol arah dengan auto-repeat di kanan.
+
+**Rotasi input (⤢)** hanya memutar arah input trackpad 90° — layout tidak
+berubah sama sekali. Saat aktif, geser ke kanan menggerakkan kursor ke atas,
+berguna bila HP diletakkan menyamping.
 
 ## Setting
 
-Koneksi (status, jalur, nama PC, versi server) · getaran haptic · scroll natural ·
-layar tetap menyala · orientasi · sensitivitas kursor · change log · panduan gesture ·
-bantuan (README).
+- **Koneksi** — status, jalur (WiFi/USB), nama PC, versi server
+- **Perilaku** — haptic, scroll natural, layar tetap menyala, rotasi input
+- **Sensitivitas & intensitas** — kecepatan kursor, blur background, kekuatan haptic
+- **Tentang** — versi APK, change log, panduan gesture, bantuan
+- **Diagnosa koneksi** — lihat bagian berikutnya
+
+---
+
+## Kalau koneksi bermasalah
+
+### Langkah 1 — Diagnosa koneksi
+Buka **⚙ Setting → diagnosa koneksi**. Laporannya menunjukkan interface HP
+(mana hotspot, mana seluler), rute yang dipilih, hasil tes TCP, balasan server,
+dan tes pencarian — lengkap dengan kesimpulan. Laporan bisa disalin.
+
+### Langkah 2 — Tes lewat browser
+Buka **`http://<ip-pc>:8765`** di browser HP.
+
+- **Muncul halaman status** → jaringan dan firewall sudah benar; masalahnya di aplikasi.
+- **Tidak bisa dijangkau** → firewall atau alamat IP-nya salah.
+
+### Tabel masalah umum
+
+| Masalah | Penyebab & solusi |
+|---|---|
+| Cari otomatis tidak ketemu | Klik **Perbaiki Firewall** di jendela server, setujui prompt Administrator |
+| Koneksi timeout | IP yang dipakai kemungkinan adapter virtual — pakai alamat yang tidak berlabel virtual |
+| Jendela server berstatus merah | Server gagal jalan; baca pesan di kotak log |
+| "versi tidak cocok" | Perbarui APK dan folder `server/` ke versi yang sama |
+| Volume tidak berubah | `pip install pycaw comtypes` — slider otomatis beralih ke mode bertingkat |
+| Tray tidak muncul | `pip install pystray pillow` |
+| USB gagal | Cek `adb devices` menampilkan device, bukan `unauthorized` |
+| Wallpaper tidak terlihat | Sebagian launcher/mode hemat daya mematikannya; naikkan slider blur di setting |
 
 ---
 
@@ -83,27 +129,14 @@ bantuan (README).
 2. **Open** → pilih folder `android/`, tunggu Gradle sync.
 3. **Build → Build App Bundle(s)/APK(s) → Build APK(s)**.
 
-Font JetBrains Mono diunduh otomatis oleh task Gradle `fetchFont`.
-Kalau offline, aplikasi memakai monospace bawaan sistem — build tetap berhasil.
+Font JetBrains Mono opsional: jalankan `android/fetch-font.sh` (atau `.bat`).
+Tanpa file font, aplikasi memakai monospace bawaan sistem dan build tetap berhasil.
 
 ## Keamanan
 
-- Server meminta **PIN** acak yang berubah tiap kali dijalankan.
+- Server meminta **PIN acak** yang berubah setiap kali dijalankan.
+- **Kunci versi** — APK dengan versi berbeda ditolak.
 - Hanya untuk jaringan lokal. Jangan buka port 8765 ke internet.
-
-## Troubleshooting
-
-| Masalah | Solusi |
-|---|---|
-| "cari otomatis" tidak ketemu | Cek firewall (izinkan Python), pastikan satu subnet, isi IP manual |
-| Volume tidak berubah | `pip install pycaw comtypes` — tanpa itu slider tidak berfungsi |
-| Tray tidak muncul | `pip install pystray pillow` |
-| USB gagal | Cek `adb devices` menampilkan device (bukan `unauthorized`) |
-| Wallpaper tidak terlihat | Sebagian launcher/mode hemat daya mematikan wallpaper di balik aplikasi |
-
-## Roadmap
-
-Bluetooth (RFCOMM) — protokol JSON sudah siap dipakai ulang, tinggal ganti transport.
 
 ---
 
@@ -111,12 +144,28 @@ Bluetooth (RFCOMM) — protokol JSON sudah siap dipakai ulang, tinggal ganti tra
 
 ```
 CLAUDEPAD/
-├── server/
-│   ├── pc_server.py      GUI desktop + layer WebSocket
-│   ├── input_core.py     injeksi input, volume, gesture, discovery
-│   ├── start_server.bat  jalankan tanpa konsol
-│   └── usb_mode.bat      adb reverse
-├── android/              project Android Studio (Kotlin)
+├── server/                 jalan di PC Windows
+│   ├── pc_server.py        GUI desktop + layer WebSocket
+│   ├── input_core.py       injeksi input, volume, gesture, discovery, firewall
+│   ├── start_server.bat    jalankan tanpa konsol
+│   ├── fix_firewall.bat    pasang aturan firewall (via UAC)
+│   └── usb_mode.bat        adb reverse
+├── android/                project Android Studio (Kotlin)
 └── docs/
-    └── bug-report.html   laporan pemeriksaan bug
+    └── bug-report.html     laporan pemeriksaan bug
 ```
+
+### Catatan teknis
+
+Server mendukung **kedua generasi API `websockets`** (di bawah 14 dan 14 ke
+atas) karena keduanya memakai bentuk `process_request` yang berbeda. Setiap
+build CI mengujinya di websockets **12.0, 13.1, dan 15.0.1**.
+
+Saat HP menjadi hotspot sambil data seluler menyala, Android mengikat socket
+aplikasi ke jaringan seluler. Aplikasi mengatasinya dengan mencari alamat lokal
+yang **satu subnet** dengan PC lalu mengikat socket ke alamat tersebut.
+
+## Roadmap
+
+Bluetooth (RFCOMM) — protokol JSON sudah siap dipakai ulang, tinggal mengganti
+lapisan transport.
