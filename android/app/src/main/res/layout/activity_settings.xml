@@ -110,12 +110,7 @@
                 <TextView style="@style/RowTitle" android:text="layar tetap menyala" />
                 <TextView android:id="@+id/tvAwake" style="@style/RowToggle" android:text="aktif" />
             </LinearLayout>
-            <View style="@style/Divider" />
-            <LinearLayout android:id="@+id/rowBrightCtl" style="@style/RowItem">
-                <TextView style="@style/RowTitle" android:text="kontrol kecerahan (laptop)" />
-                <TextView android:id="@+id/tvBrightCtl" style="@style/RowToggle"
-                    android:text="nonaktif" />
-            </LinearLayout>
+
             <View style="@style/Divider" />
             <LinearLayout android:id="@+id/rowShowTaps" style="@style/RowItem">
                 <TextView style="@style/RowTitle" android:text="show taps" />
