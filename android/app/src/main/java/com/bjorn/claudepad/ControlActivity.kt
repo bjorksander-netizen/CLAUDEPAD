@@ -221,6 +221,8 @@ class ControlActivity : AppCompatActivity() {
             Haptics.light()
             showTypePopup()
         }
+        // Enter di baris utama harus bisa ditekan tanpa membuka panel ketik.
+        tap(R.id.kEnter, Haptics.Level.MEDIUM) { WsClient.key("enter") }
     }
 
     /**
@@ -488,9 +490,20 @@ class ControlActivity : AppCompatActivity() {
         tap(R.id.mPlay, Haptics.Level.MEDIUM) { WsClient.media("playpause") }
         tap(R.id.mPrev) { WsClient.media("prev") }
         tap(R.id.mNext) { WsClient.media("next") }
-        // Mute pindah ke ketukan ikon speaker pada slider volume.
+        tap(R.id.mMute, Haptics.Level.MEDIUM) { WsClient.media("mute") }
         tap(R.id.mBrightUp, Haptics.Level.MEDIUM) { WsClient.brightness(10) }
         tap(R.id.mBrightDown, Haptics.Level.MEDIUM) { WsClient.brightness(-10) }
+        applyBrightnessMode()
+    }
+
+    /**
+     * Kontrol kecerahan hanya berguna di laptop. Saat dimatikan di Setting,
+     * tempatnya diisi kembali oleh tombol mute.
+     */
+    private fun applyBrightnessMode() {
+        val on = Prefs.brightnessCtl(this)
+        findViewById<View>(R.id.brightRow).visibility = if (on) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.mMute).visibility = if (on) View.GONE else View.VISIBLE
     }
 
     private fun setupDpad() {
@@ -543,6 +556,7 @@ class ControlActivity : AppCompatActivity() {
         trackpad.pointerLocation = Prefs.pointerLocation(this)
         trackpad.showTaps = Prefs.showTaps(this)
         WsClient.autoReconnect = Prefs.autoReconnect(this)
+        applyBrightnessMode()
         applyScreenOrientation()
         if (!WsClient.connected) finish()
     }

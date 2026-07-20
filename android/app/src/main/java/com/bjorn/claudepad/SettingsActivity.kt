@@ -17,15 +17,23 @@ class SettingsActivity : AppCompatActivity() {
         const val README_URL = "https://github.com/bjorksander-netizen/CLAUDEPAD#readme"
 
         val GESTURE_GUIDE = """
-            1 jari geser        gerakkan kursor
-            1 jari tap          klik kiri
-            2 jari tap          klik kanan
-            2 jari geser        scroll
-            2 jari cubit        zoom (Ctrl + scroll)
-            3 jari ke atas      Task View
-            3 jari ke bawah     Show Desktop
-            3 jari kiri/kanan   ganti aplikasi
-            tap 2x lalu tahan   drag & drop
+            1 jari geser         gerakkan kursor
+            1 jari tap           klik kiri
+            2 jari tap           klik kanan
+            3 jari tap           klik tengah
+            2 jari geser tegak   scroll atas/bawah
+            2 jari geser datar   scroll kiri/kanan
+            2 jari cubit         zoom (Ctrl + scroll)
+            3 jari ke atas       Task View
+            3 jari ke bawah      Show Desktop
+            3 jari kiri/kanan    ganti aplikasi
+            tap 2x lalu tahan    drag & drop
+
+            Sumbu scroll dikunci setelah arah dominan terdeteksi,
+            jadi gulungan tidak berpindah arah di tengah jalan.
+
+            Semua gestur mengikuti rotasi input yang sedang aktif
+            (0°, 90°, atau 270°).
         """.trimIndent()
     }
 
@@ -119,6 +127,10 @@ class SettingsActivity : AppCompatActivity() {
                 .show()
         }
 
+        toggleRow(R.id.rowBrightCtl, R.id.tvBrightCtl,
+            { Prefs.brightnessCtl(this) },
+            { v -> Prefs.setBrightnessCtl(this, v) })
+
         toggleRow(R.id.rowShowTaps, R.id.tvShowTaps,
             { Prefs.showTaps(this) },
             { v -> Prefs.setShowTaps(this, v) })
@@ -208,44 +220,13 @@ class SettingsActivity : AppCompatActivity() {
     // ------------------------------------------------------------------ daya --
     /** Kontrol daya PC. Semua aksi berisiko dikonfirmasi lebih dulu. */
     private fun bindPower() {
-        findViewById<View>(R.id.rowPower).setOnClickListener {
+        findViewById<View>(R.id.rowPower).setOnClickListener { anchor ->
             Haptics.medium()
             if (!WsClient.connected) {
                 toast("belum terhubung ke pc")
                 return@setOnClickListener
             }
-            val view = layoutInflater.inflate(R.layout.popup_power, null)
-            Fonts.apply(view)
-            val dlg = AlertDialog.Builder(this)
-                .setTitle("kontrol daya pc")
-                .setView(view)
-                .setNegativeButton("tutup", null)
-                .create()
-
-            fun act(id: Int, label: String, action: String, confirm: Boolean) {
-                view.findViewById<View>(id).setOnClickListener {
-                    Haptics.medium()
-                    if (confirm) {
-                        AlertDialog.Builder(this)
-                            .setTitle(label)
-                            .setMessage("Yakin ingin $label? Pekerjaan yang belum " +
-                                        "disimpan di PC bisa hilang.")
-                            .setPositiveButton("lanjutkan") { _, _ ->
-                                WsClient.power(action); dlg.dismiss()
-                            }
-                            .setNegativeButton("batal", null)
-                            .show()
-                    } else {
-                        WsClient.power(action); dlg.dismiss()
-                    }
-                }
-            }
-            act(R.id.pShutdown, "matikan pc", "shutdown", true)
-            act(R.id.pRestart, "mulai ulang pc", "restart", true)
-            act(R.id.pSleep, "tidurkan pc", "sleep", false)
-            act(R.id.pHibernate, "hibernasi pc", "hibernate", false)
-            act(R.id.pLogoff, "keluar sesi", "logoff", true)
-            dlg.show()
+            showPowerPopup(anchor)
         }
 
         // Wake-on-LAN — eksperimental
@@ -265,8 +246,12 @@ class SettingsActivity : AppCompatActivity() {
                 .setMessage("Kirim sinyal penyalaan ke $mac?\n\n" +
                     "Fitur ini eksperimental. Agar berhasil, Wake-on-LAN harus " +
                     "diaktifkan di BIOS/UEFI dan pada properti adapter jaringan " +
-                    "Windows. Umumnya hanya bekerja lewat kabel LAN — banyak " +
-                    "adapter WiFi tidak mendukungnya.")
+                    "Windows, serta HP harus berada di jaringan yang sama dengan " +
+                    "PC. Umumnya hanya bekerja lewat kabel LAN — banyak adapter " +
+                    "WiFi tidak mendukungnya.\n\n" +
+                    "Catatan: menyalakan PC lewat kabel USB dari HP tidak bisa " +
+                    "dilakukan. Android tidak mengizinkan aplikasi menyamar " +
+                    "sebagai perangkat USB pembangun daya.")
                 .setPositiveButton("kirim") { _, _ ->
                     Thread {
                         val res = WakeOnLan.send(mac)
@@ -281,6 +266,47 @@ class SettingsActivity : AppCompatActivity() {
                 .setNegativeButton("batal", null)
                 .show()
         }
+    }
+
+    /** Pop-up daya, bergaya sama dengan panel Advance di layar utama. */
+    private fun showPowerPopup(anchor: View) {
+        val d = resources.displayMetrics.density
+        val content = layoutInflater.inflate(R.layout.popup_power, null)
+        Fonts.apply(content)
+
+        val popup = android.widget.PopupWindow(content,
+            (230 * d).toInt(),
+            android.view.WindowManager.LayoutParams.WRAP_CONTENT, true)
+        popup.elevation = 24f
+
+        fun act(id: Int, label: String, action: String, confirm: Boolean) {
+            content.findViewById<View>(id).setOnClickListener {
+                Haptics.medium()
+                if (confirm) {
+                    popup.dismiss()
+                    AlertDialog.Builder(this)
+                        .setTitle(label)
+                        .setMessage("Yakin ingin $label? Pekerjaan yang belum " +
+                                    "disimpan di PC bisa hilang.")
+                        .setPositiveButton("lanjutkan") { _, _ -> WsClient.power(action) }
+                        .setNegativeButton("batal", null)
+                        .show()
+                } else {
+                    WsClient.power(action)
+                    popup.dismiss()
+                }
+            }
+        }
+        act(R.id.pShutdown, "matikan pc", "shutdown", true)
+        act(R.id.pRestart, "mulai ulang pc", "restart", true)
+        act(R.id.pSleep, "tidurkan pc", "sleep", false)
+        act(R.id.pHibernate, "hibernasi pc", "hibernate", false)
+        act(R.id.pLogoff, "keluar sesi", "logoff", true)
+
+        content.measure(
+            View.MeasureSpec.makeMeasureSpec((230 * d).toInt(), View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+        popup.showAsDropDown(anchor, 0, (8 * d).toInt())
     }
 
     private fun toast(s: String) =
