@@ -215,7 +215,14 @@
                             android:layout_marginStart="5dp" android:text="⏭" />
                     </LinearLayout>
 
+                    <TextView android:id="@+id/mMute" style="@style/KeyGlass"
+                        android:layout_width="match_parent" android:layout_height="0dp"
+                        android:layout_weight="1" android:layout_marginTop="5dp"
+                        android:text="🔇" android:textSize="15sp"
+                        android:visibility="gone" />
+
                     <LinearLayout
+                        android:id="@+id/brightRow"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
