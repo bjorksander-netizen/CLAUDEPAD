@@ -85,6 +85,11 @@
                     android:text="aktif" />
             </LinearLayout>
             <View style="@style/Divider" />
+            <LinearLayout android:id="@+id/rowShowNotif" style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="tampilkan notifikasi kontrol" />
+                <TextView style="@style/RowValue" android:text="›" />
+            </LinearLayout>
+            <View style="@style/Divider" />
             <LinearLayout android:id="@+id/rowForgetPair" style="@style/RowItem">
                 <TextView style="@style/RowTitle" android:text="lupakan pemasangan" />
                 <TextView android:id="@+id/tvPairState" style="@style/RowValue"
@@ -125,6 +130,16 @@
             <LinearLayout android:id="@+id/rowOrientation" style="@style/RowItem">
                 <TextView style="@style/RowTitle" android:text="orientasi tampilan" />
                 <TextView android:id="@+id/tvOrientation" style="@style/RowToggle" android:text="vertikal" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ==== Makro ==== -->
+        <TextView style="@style/SectionLabel" android:text="TOMBOL MAKRO" />
+
+        <LinearLayout style="@style/SettingCard">
+            <LinearLayout android:id="@+id/rowMacros" style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="kelola tombol makro" />
+                <TextView android:id="@+id/tvMacroCount" style="@style/RowValue" android:text="0" />
             </LinearLayout>
         </LinearLayout>
 
