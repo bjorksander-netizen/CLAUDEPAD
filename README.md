@@ -74,21 +74,17 @@ Mengikuti standar **Windows Precision Touchpad**:
 | ◐ | klik kiri | | ⧉ | grup salin & tempel |
 | ⊙ | klik tengah | | ↩ | grup urungkan & ulangi |
 | ◑ | klik kanan | | ⇌ | Win+Tab |
-| ⏎ | Enter | | 🖧 | grup koneksi PC |
+| ⏎ | Enter | | ⊗ | Ctrl+W tutup tab |
 | ⋯ | panel Advance | | ⚙ | setting |
 | ⤢ ⤡ ⤣ | rotasi input 0° / 90° / 270° | | ⏻ | putuskan koneksi |
 
 Tombol bertanda **grup** membuka pop-up kecil di atasnya:
 **⧉** berisi `copy` dan `paste`, **↩** berisi `undo` dan `redo`, dan
-**🖧** berisi `wifi`, `bluetooth`, serta `hotspot` untuk PC.
+**SIGNAL** berisi `wifi`, `bluetooth`, serta `hotspot` untuk PC.
 
 Panel **Advance** juga memuat sleep layar dan lock PC.
 
-**Kontrol kecerahan layar PC** (− ☀ +) tersedia di sebelah slider volume,
-tetapi **default mati** karena hanya bekerja pada laptop; monitor eksternal
-umumnya menolak perintah kecerahan. Nyalakan lewat ⚙ Setting bila PC-mu
-laptop. Saat mati, tombol **mute** menempati tempatnya. Mute juga selalu
-bisa dilakukan dengan mengetuk ikon speaker pada slider volume.
+**Mute** dilakukan dengan mengetuk ikon speaker pada slider volume.
 
 Panel **Advance** (⋯) muncul sebagai pop-up berisi `esc` · `⇥` Tab · `❖` Win ·
 `⌦` Delete · `⚙` Ctrl+, (buka pengaturan).

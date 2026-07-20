@@ -5,7 +5,8 @@ bersamaan, dan server menolak koneksi bila keduanya berbeda.
 
 | Versi | Inti perubahan |
 |---|---|
-| **v2.9.1** | Perbaikan layout lanskap & tombol Enter; kecerahan jadi opsional |
+| **v2.9.2** | Bar atas lanskap diperbaiki; kecerahan & mute mandiri dihapus; Ctrl+W |
+| v2.9.1 | Perbaikan layout lanskap & tombol Enter; kecerahan jadi opsional |
 | v2.9 | Perbaikan kursor patah-patah; layout lanskap; kecerahan & daya PC; pairing; auto-reconnect |
 | v2.8 | D-Pad kembali ke bentuk salib; tombol digabung jadi grup pop-up; kontrol koneksi PC; log ping |
 | v2.6 | Panel ketik terkunci di tengah; D-Pad bundar faset; pointer location & show taps |
@@ -18,6 +19,27 @@ bersamaan, dan server menolak koneksi bila keduanya berbeda.
 | v1.0 | Rilis pertama |
 
 ---
+
+## v2.9.2
+
+### Perbaikan
+- **Bar kontrol pada mode lanskap** sebelumnya hanya membentang selebar kolom
+  trackpad sehingga tombolnya menggantung di tengah layar. Kini bar itu
+  membentang penuh di bagian atas, dengan status di kiri dan tombol di kanan.
+- **Teks di dalam trackpad terbaca menyamping** saat rotasi aktif, karena
+  diputar dua kali: sekali oleh rotasi layar, sekali lagi oleh kanvas. Rotasi
+  kanvas dihapus — layar sudah menanganinya.
+
+### Perubahan
+- **Kontrol kecerahan dihapus** sepenuhnya, beserta pengaturannya. Fitur ini
+  hanya bekerja pada layar internal laptop dan menyulitkan lebih banyak
+  pengguna daripada yang dibantunya.
+- **Tombol mute mandiri dihapus.** Mute tetap tersedia dengan mengetuk ikon
+  speaker pada slider volume.
+- **Tombol grup koneksi PC pindah** ke posisi tombol mute, dengan label teks
+  **SIGNAL** menggantikan simbol.
+- **Tombol Ctrl+W** (tutup tab/jendela) ditambahkan di posisi tombol koneksi
+  yang lama, memakai simbol ⊗.
 
 ## v2.9.1
 
