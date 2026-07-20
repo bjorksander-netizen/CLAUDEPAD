@@ -4,13 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Kartu ketik. Posisi diatur dari kode: awalnya di tengah layar,
-         lalu tepi bawahnya dikunci sehingga kartu hanya tumbuh ke ATAS. -->
+    <!-- Kartu ketik selalu berada di tengah layar (horizontal & vertikal),
+         tidak terpengaruh munculnya keyboard bawaan. Pertumbuhan ke atas
+         diatur dari kode dengan mengunci tepi bawah kartu. -->
     <LinearLayout
         android:id="@+id/typeCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
+        android:layout_gravity="center"
         android:layout_marginHorizontal="20dp"
         android:orientation="horizontal"
         android:gravity="bottom"

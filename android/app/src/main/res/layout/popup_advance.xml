@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="200dp"
-    android:layout_height="200dp"
+    android:layout_width="210dp"
+    android:layout_height="210dp"
     android:orientation="vertical"
     android:background="@drawable/glass_popup"
     android:padding="12dp">
@@ -17,6 +17,9 @@
         <TextView android:id="@+id/kTab" style="@style/KeyGlass" android:layout_width="0dp"
             android:layout_weight="1" android:layout_height="match_parent"
             android:layout_marginStart="8dp" android:text="⇥" />
+        <TextView android:id="@+id/kWin" style="@style/KeyGlass" android:layout_width="0dp"
+            android:layout_weight="1" android:layout_height="match_parent"
+            android:layout_marginStart="8dp" android:text="❖" />
     </LinearLayout>
 
     <LinearLayout
@@ -25,10 +28,13 @@
         android:layout_weight="1"
         android:orientation="horizontal"
         android:layout_marginTop="8dp">
-        <TextView android:id="@+id/kWin" style="@style/KeyGlass" android:layout_width="0dp"
-            android:layout_weight="1" android:layout_height="match_parent" android:text="❖" />
         <TextView android:id="@+id/kDel" style="@style/KeyGlass" android:layout_width="0dp"
+            android:layout_weight="1" android:layout_height="match_parent" android:text="⌦" />
+        <TextView android:id="@+id/kSettings" style="@style/KeyGlass" android:layout_width="0dp"
             android:layout_weight="1" android:layout_height="match_parent"
-            android:layout_marginStart="8dp" android:text="⌦" />
+            android:layout_marginStart="8dp" android:text="⚙"
+            android:contentDescription="Ctrl+, buka pengaturan" />
+        <View android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="match_parent" />
     </LinearLayout>
 </LinearLayout>

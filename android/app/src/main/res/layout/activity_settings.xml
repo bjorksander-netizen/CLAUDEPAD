@@ -83,6 +83,16 @@
                 <TextView android:id="@+id/tvAwake" style="@style/RowToggle" android:text="aktif" />
             </LinearLayout>
             <View style="@style/Divider" />
+            <LinearLayout android:id="@+id/rowShowTaps" style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="show taps" />
+                <TextView android:id="@+id/tvShowTaps" style="@style/RowToggle" android:text="aktif" />
+            </LinearLayout>
+            <View style="@style/Divider" />
+            <LinearLayout android:id="@+id/rowPointerLoc" style="@style/RowItem">
+                <TextView style="@style/RowTitle" android:text="pointer location" />
+                <TextView android:id="@+id/tvPointerLoc" style="@style/RowToggle" android:text="nonaktif" />
+            </LinearLayout>
+            <View style="@style/Divider" />
             <LinearLayout android:id="@+id/rowOrientation" style="@style/RowItem">
                 <TextView style="@style/RowTitle" android:text="rotasi input trackpad" />
                 <TextView android:id="@+id/tvOrientation" style="@style/RowToggle" android:text="vertikal" />

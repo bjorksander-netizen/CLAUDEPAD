@@ -158,7 +158,7 @@
         <TextView android:id="@+id/kCopy"   style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:text="⧉" />
         <TextView android:id="@+id/kPaste"  style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="⎘" />
         <TextView android:id="@+id/kUndo"   style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="↩" />
-        <TextView android:id="@+id/kWinTab" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="⊞" />
+        <TextView android:id="@+id/kWinTab" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="⇌" />
         <TextView android:id="@+id/btnAdvance" style="@style/KeyGlass" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="6dp" android:text="⋯" />
     </LinearLayout>
 
