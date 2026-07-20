@@ -62,6 +62,8 @@ Mengikuti standar **Windows Precision Touchpad**:
 | 3 jari ke atas | Task View |
 | 3 jari ke bawah | Show Desktop |
 | 3 jari kiri / kanan | ganti aplikasi |
+| 2 jari geser mendatar | scroll horizontal |
+| 3 jari ketuk | klik tengah |
 | tap 2× lalu tahan | drag & drop |
 
 ## Tombol
@@ -71,13 +73,17 @@ Mengikuti standar **Windows Precision Touchpad**:
 | ◐ | klik kiri | | ⧉ | grup salin & tempel |
 | ⊙ | klik tengah | | ↩ | grup urungkan & ulangi |
 | ◑ | klik kanan | | ⇌ | Win+Tab |
-| ⏎ | Enter | | 📶 | grup koneksi PC |
+| ⏎ | Enter | | 🖧 | grup koneksi PC |
 | ⋯ | panel Advance | | ⚙ | setting |
 | ⤢ ⤡ ⤣ | rotasi input 0° / 90° / 270° | | ⏻ | putuskan koneksi |
 
 Tombol bertanda **grup** membuka pop-up kecil di atasnya:
 **⧉** berisi `copy` dan `paste`, **↩** berisi `undo` dan `redo`, dan
-**📶** berisi `wifi`, `bluetooth`, serta `hotspot` untuk PC.
+**🖧** berisi `wifi`, `bluetooth`, serta `hotspot` untuk PC.
+
+Panel **Advance** juga memuat sleep layar dan lock PC. Slider volume punya
+kontrol **kecerahan layar PC** (− ☀ +) di sampingnya, dan **mute** kini
+dilakukan dengan mengetuk ikon speaker pada slider.
 
 Panel **Advance** (⋯) muncul sebagai pop-up berisi `esc` · `⇥` Tab · `❖` Win ·
 `⌦` Delete · `⚙` Ctrl+, (buka pengaturan).
@@ -96,7 +102,8 @@ termasuk backspace.
 ### Rotasi input
 
 Tombol **⤢ / ⤡ / ⤣** memutar arah input trackpad bergiliran antara **0°, 90°,
-dan 270°** — layout tidak berubah sama sekali. Pada 90°, geser ke kanan
+dan 270°**. Sejak v2.9 layar ikut berputar dan seluruh tombol memakai tata
+letak lanskap tersendiri. Pada 90°, geser ke kanan
 menggerakkan kursor ke atas; pada 270° ke bawah. Tulisan di dalam kotak
 trackpad ikut berputar mengikuti orientasi aktif. Berguna bila HP diletakkan
 menyamping.
@@ -117,6 +124,16 @@ Setiap pengukuran juga direkam. Di **⚙ Setting → LOG PING** kamu bisa meliha
 laporan lengkap (rata-rata, median, jitter, jumlah sampel lambat), lalu
 menyimpannya sebagai berkas teks dan membagikannya lewat lembar berbagi
 Android ke aplikasi mana pun.
+
+### Daya PC & Wake-on-LAN
+
+Di puncak halaman **⚙ Setting** ada kontrol daya: matikan, mulai ulang,
+tidurkan, hibernasi, dan keluar sesi. Aksi berisiko selalu dikonfirmasi.
+
+**Wake-on-LAN bersifat eksperimental.** Fitur ini menyalakan PC dari HP, tapi
+keberhasilannya di luar kendali aplikasi: WoL harus diaktifkan di BIOS/UEFI
+dan pada properti adapter jaringan Windows, dan umumnya hanya bekerja lewat
+kabel LAN — banyak adapter WiFi tidak mendukungnya.
 
 ### Kontrol koneksi PC
 
@@ -177,6 +194,9 @@ Tanpa file font, aplikasi memakai monospace bawaan sistem dan build tetap berhas
 ## Keamanan
 
 - Server meminta **PIN acak** yang berubah setiap kali dijalankan.
+- Setelah berhasil sekali, server memberi **token pairing** sehingga koneksi
+  berikutnya tidak perlu mengetik PIN. Token disimpan di `server/paired.txt`
+  dan bisa dihapus lewat Setting atau dengan menghapus berkas itu.
 - **Kunci versi** — APK dengan versi berbeda ditolak.
 - Hanya untuk jaringan lokal. Jangan buka port 8765 ke internet.
 

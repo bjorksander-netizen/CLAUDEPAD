@@ -5,7 +5,8 @@ bersamaan, dan server menolak koneksi bila keduanya berbeda.
 
 | Versi | Inti perubahan |
 |---|---|
-| **v2.8** | D-Pad kembali ke bentuk salib; tombol digabung jadi grup pop-up; kontrol koneksi PC; log ping |
+| **v2.9** | Perbaikan kursor patah-patah; layout lanskap; kecerahan & daya PC; pairing; auto-reconnect |
+| v2.8 | D-Pad kembali ke bentuk salib; tombol digabung jadi grup pop-up; kontrol koneksi PC; log ping |
 | v2.6 | Panel ketik terkunci di tengah; D-Pad bundar faset; pointer location & show taps |
 | v2.5 | Panel ketik pop-up dengan latar blur; indikator ping; rotasi input 3 arah |
 | v2.4 | Perbaikan fatal HTTP 500 di semua koneksi; firewall benar; logo aplikasi |
@@ -16,6 +17,48 @@ bersamaan, dan server menolak koneksi bila keduanya berbeda.
 | v1.0 | Rilis pertama |
 
 ---
+
+## v2.9
+
+### Perbaikan performa (kursor patah-patah)
+Log ping pengguna menunjukkan median 14 ms tetapi jitter 16,8 ms dengan
+lonjakan sampai 59 ms — jaringan cepat namun sangat tidak stabil. Dua akar
+masalah diperbaiki:
+- **Penggabungan gerakan (coalescing).** Sebelumnya satu pesan WebSocket
+  dikirim untuk **setiap** event sentuhan — 60–120 paket mungil per detik.
+  Saat jaringan tersendat, pesan menumpuk lalu dilepas sekaligus sehingga
+  kursor melompat menyusul. Kini pergeseran dijumlahkan dan dikirim sekali
+  per frame tampilan.
+- **WifiLock mode latensi rendah** selama aplikasi dipakai, mencegah radio
+  WiFi tertidur di antara paket — penyebab pola cepat-lambat berselang-seling
+  pada log.
+- **TCP_NODELAY** di sisi server agar paket kecil tidak ditahan Nagle.
+
+### Revisi
+- Tombol **Enter kini selalu bisa ditekan**, tidak hanya di mode mengetik.
+- Simbol grup koneksi menjadi **🖧**, isi pop-upnya kini teks saja.
+- Tombol mute diganti **kontrol kecerahan layar PC** (− ☀ +). Mute dipindah
+  ke ketukan pada ikon speaker di slider volume.
+- Fitur **change log dihapus** dari halaman Setting.
+
+### Fitur baru
+- **Layout lanskap tersendiri.** Saat rotasi input 90°/270° aktif, layar ikut
+  berputar dan seluruh tombol memakai tata letak khusus lanskap — bukan
+  sekadar diputar — sehingga teks tetap tajam dan proporsi tombol pas.
+- **Sleep layar & lock PC** di panel Advance.
+- **Gestur scroll horizontal** dua jari, dengan sumbu terkunci setelah arah
+  dominan terdeteksi agar tidak berganti-ganti di tengah gulungan.
+- **Ketuk tiga jari = klik tengah.**
+- **Kontrol daya PC** di puncak halaman Setting: matikan, mulai ulang,
+  tidurkan, hibernasi, keluar sesi — aksi berisiko dikonfirmasi dahulu.
+- **Wake-on-LAN (eksperimental)** — menyalakan PC dari HP. Keberhasilannya
+  bergantung pengaturan BIOS/UEFI dan adapter jaringan; umumnya hanya bekerja
+  lewat kabel LAN.
+- **Pairing** — server memberi token saat pertama masuk dengan PIN, sehingga
+  koneksi berikutnya tidak perlu mengetik PIN lagi. Bisa dilupakan lewat
+  Setting.
+- **Auto-reconnect** — menyambung ulang otomatis sampai 5 kali dengan jeda
+  menaik saat koneksi putus sesaat.
 
 ## v2.8
 
