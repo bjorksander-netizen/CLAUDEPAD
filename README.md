@@ -64,6 +64,7 @@ Mengikuti standar **Windows Precision Touchpad**:
 | 3 jari kiri / kanan | ganti aplikasi |
 | 2 jari geser mendatar | scroll horizontal |
 | 3 jari ketuk | klik tengah |
+| 2 jari geser mendatar | scroll horizontal (sumbu terkunci) |
 | tap 2× lalu tahan | drag & drop |
 
 ## Tombol
@@ -81,9 +82,13 @@ Tombol bertanda **grup** membuka pop-up kecil di atasnya:
 **⧉** berisi `copy` dan `paste`, **↩** berisi `undo` dan `redo`, dan
 **🖧** berisi `wifi`, `bluetooth`, serta `hotspot` untuk PC.
 
-Panel **Advance** juga memuat sleep layar dan lock PC. Slider volume punya
-kontrol **kecerahan layar PC** (− ☀ +) di sampingnya, dan **mute** kini
-dilakukan dengan mengetuk ikon speaker pada slider.
+Panel **Advance** juga memuat sleep layar dan lock PC.
+
+**Kontrol kecerahan layar PC** (− ☀ +) tersedia di sebelah slider volume,
+tetapi **default mati** karena hanya bekerja pada laptop; monitor eksternal
+umumnya menolak perintah kecerahan. Nyalakan lewat ⚙ Setting bila PC-mu
+laptop. Saat mati, tombol **mute** menempati tempatnya. Mute juga selalu
+bisa dilakukan dengan mengetuk ikon speaker pada slider volume.
 
 Panel **Advance** (⋯) muncul sebagai pop-up berisi `esc` · `⇥` Tab · `❖` Win ·
 `⌦` Delete · `⚙` Ctrl+, (buka pengaturan).
@@ -134,6 +139,11 @@ tidurkan, hibernasi, dan keluar sesi. Aksi berisiko selalu dikonfirmasi.
 keberhasilannya di luar kendali aplikasi: WoL harus diaktifkan di BIOS/UEFI
 dan pada properti adapter jaringan Windows, dan umumnya hanya bekerja lewat
 kabel LAN — banyak adapter WiFi tidak mendukungnya.
+
+Menyalakan PC **lewat kabel USB dari HP tidak dimungkinkan**. Android tidak
+mengizinkan aplikasi biasa menyamar sebagai perangkat USB yang mampu
+membangunkan komputer, dan port USB PC umumnya tidak menyalurkan daya saat
+komputer benar-benar mati.
 
 ### Kontrol koneksi PC
 

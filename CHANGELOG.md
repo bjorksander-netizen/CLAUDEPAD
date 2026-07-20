@@ -5,7 +5,8 @@ bersamaan, dan server menolak koneksi bila keduanya berbeda.
 
 | Versi | Inti perubahan |
 |---|---|
-| **v2.9** | Perbaikan kursor patah-patah; layout lanskap; kecerahan & daya PC; pairing; auto-reconnect |
+| **v2.9.1** | Perbaikan layout lanskap & tombol Enter; kecerahan jadi opsional |
+| v2.9 | Perbaikan kursor patah-patah; layout lanskap; kecerahan & daya PC; pairing; auto-reconnect |
 | v2.8 | D-Pad kembali ke bentuk salib; tombol digabung jadi grup pop-up; kontrol koneksi PC; log ping |
 | v2.6 | Panel ketik terkunci di tengah; D-Pad bundar faset; pointer location & show taps |
 | v2.5 | Panel ketik pop-up dengan latar blur; indikator ping; rotasi input 3 arah |
@@ -18,7 +19,30 @@ bersamaan, dan server menolak koneksi bila keduanya berbeda.
 
 ---
 
-## v2.9
+## v2.9.1
+
+### Perbaikan bug
+- **Layout lanskap tidak pernah dimuat.** Manifest mencantumkan
+  `orientation|screenSize|screenLayout` pada `configChanges`, yang menyuruh
+  Android **tidak** membuat ulang Activity saat berputar — akibatnya folder
+  `layout-land` tak pernah dibaca dan yang tampil adalah layout potret yang
+  dipaksa melar. Kini hanya `keyboardHidden` yang dipertahankan.
+- **Tombol Enter di baris utama mati.** Sejak panel ketik menjadi pop-up di
+  v2.5, `kEnter` hanya dipakai untuk mewarnai aksen dan tidak pernah diberi
+  listener. Sekarang bisa ditekan tanpa membuka panel ketik.
+
+### Perubahan
+- **Kontrol kecerahan jadi opsional** dan default **mati**, karena hanya
+  bekerja pada laptop (layar internal). Saat dimatikan, tombol **mute**
+  kembali menempati tempatnya. Diatur lewat Setting.
+- **Pop-up kontrol daya** kini bergaya sama dengan panel Advance —
+  pop-up kaca dua kolom, bukan dialog.
+- **Panduan gestur diperbarui**: ketuk tiga jari, scroll horizontal,
+  penguncian sumbu scroll, dan catatan bahwa semua gestur mengikuti rotasi
+  input yang aktif.
+- Catatan Wake-on-LAN diperjelas: menyalakan PC lewat kabel USB dari HP
+  tidak dimungkinkan.
+
 
 ### Perbaikan performa (kursor patah-patah)
 Log ping pengguna menunjukkan median 14 ms tetapi jitter 16,8 ms dengan
