@@ -186,13 +186,17 @@ jobs:
           fi
 
       - name: Siapkan artefak
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk CLAUDEPAD.apk
+        run: |
+          # Nama berkas memuat versi supaya jelas saat sudah diunduh
+          cp android/app/build/outputs/apk/debug/app-debug.apk \
+             "CLAUDEPAD-v${{ steps.ver.outputs.version }}.apk"
+          ls -lh CLAUDEPAD-v*.apk
 
       - name: Upload artefak
         uses: actions/upload-artifact@v4
         with:
           name: CLAUDEPAD-v${{ steps.ver.outputs.version }}
-          path: CLAUDEPAD.apk
+          path: CLAUDEPAD-v${{ steps.ver.outputs.version }}.apk
 
       - name: Publikasi release
         env:
@@ -207,12 +211,13 @@ jobs:
           for i in 1 2 3 4 5; do
             echo "--- percobaan publikasi $i ---"
             if gh release view latest >/dev/null 2>&1; then
+              gh release delete-asset latest CLAUDEPAD.apk --yes >/dev/null 2>&1 || true
               if gh release edit latest --title "CLAUDEPAD v$V" --notes "$NOTES" \
-                 && gh release upload latest CLAUDEPAD.apk --clobber; then
+                 && gh release upload latest "CLAUDEPAD-v$V.apk" --clobber; then
                 echo "Release v$V berhasil diperbarui"; exit 0
               fi
             else
-              if gh release create latest CLAUDEPAD.apk \
+              if gh release create latest "CLAUDEPAD-v$V.apk" \
                  --title "CLAUDEPAD v$V" --notes "$NOTES"; then
                 echo "Release v$V berhasil dibuat"; exit 0
               fi
