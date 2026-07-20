@@ -71,11 +71,12 @@ Mengikuti standar **Windows Precision Touchpad**:
 | ◐ | klik kiri | | ⧉ | salin (Ctrl+C) |
 | ⊙ | klik tengah | | ⎘ | tempel (Ctrl+V) |
 | ◑ | klik kanan | | ↩ | urungkan (Ctrl+Z) |
-| ⏎ | Enter | | ⊞ | Win+Tab |
+| ⏎ | Enter | | ⇌ | Win+Tab |
 | ⋯ | panel Advance | | ⚙ | setting |
 | ⤢ ⤡ ⤣ | rotasi input 0° / 90° / 270° | | ⏻ | putuskan koneksi |
 
-Panel **Advance** (⋯) muncul sebagai pop-up berisi `esc` · `⇥` Tab · `❖` Win · `⌦` Delete.
+Panel **Advance** (⋯) muncul sebagai pop-up berisi `esc` · `⇥` Tab · `❖` Win ·
+`⌦` Delete · `⚙` Ctrl+, (buka pengaturan).
 
 **Baris bawah** terbagi dua kolom seimbang: slider volume dan kontrol media di
 kiri, **D-Pad** tombol arah dengan auto-repeat di kanan.
@@ -83,8 +84,9 @@ kiri, **D-Pad** tombol arah dengan auto-repeat di kanan.
 ### Mengetik
 
 Sentuh kolom **"ketik di sini"** untuk membuka panel ketik di tengah layar
-dengan latar diburamkan. Panel melebar ke atas mengikuti panjang teks, dan
-bertahan sampai keyboard ditutup. Huruf dikirim langsung ke PC saat diketik,
+dengan latar diburamkan. Posisinya tetap terpusat dan tidak bergeser saat
+keyboard muncul. Panel melebar ke atas mengikuti panjang teks, dan bertahan
+sampai keyboard ditutup. Huruf dikirim langsung ke PC saat diketik,
 termasuk backspace.
 
 ### Rotasi input
@@ -95,6 +97,12 @@ menggerakkan kursor ke atas; pada 270° ke bawah. Tulisan di dalam kotak
 trackpad ikut berputar mengikuti orientasi aktif. Berguna bila HP diletakkan
 menyamping.
 
+### Umpan balik visual trackpad
+
+**Show taps** menampilkan riak lingkaran di titik sentuhan (default aktif),
+sedangkan **pointer location** menambahkan garis bidik dan koordinat setiap
+jari (default mati). Keduanya diatur di ⚙ Setting.
+
 ### Indikator ping
 
 Saat memakai WiFi/Hotspot, latensi tampil di samping nama PC dan berganti
@@ -104,7 +112,8 @@ lambat.
 ## Setting
 
 - **Koneksi** — status, jalur (WiFi/USB), nama PC, versi server
-- **Perilaku** — haptic, scroll natural, layar tetap menyala, rotasi input
+- **Perilaku** — haptic, scroll natural, layar tetap menyala, show taps,
+  pointer location, rotasi input
 - **Sensitivitas & intensitas** — kecepatan kursor, blur background, kekuatan haptic
 - **Tentang** — versi APK, change log, panduan gesture, bantuan
 - **Diagnosa koneksi** — lihat bagian berikutnya

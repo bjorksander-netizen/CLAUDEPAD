@@ -5,7 +5,8 @@ bersamaan, dan server menolak koneksi bila keduanya berbeda.
 
 | Versi | Inti perubahan |
 |---|---|
-| **v2.5** | Panel ketik pop-up dengan latar blur; indikator ping; rotasi input 3 arah |
+| **v2.6** | Panel ketik terkunci di tengah; D-Pad bundar faset; pointer location & show taps |
+| v2.5 | Panel ketik pop-up dengan latar blur; indikator ping; rotasi input 3 arah |
 | v2.4 | Perbaikan fatal HTTP 500 di semua koneksi; firewall benar; logo aplikasi |
 | v2.3 | Koneksi WiFi/Hotspot: adapter virtual disaring, socket diikat ke interface hotspot; mode diagnosa |
 | v2.2 | Slider blur & haptic, backspace kembali, kunci versi, tombol putuskan koneksi |
@@ -14,6 +15,27 @@ bersamaan, dan server menolak koneksi bila keduanya berbeda.
 | v1.0 | Rilis pertama |
 
 ---
+
+## v2.6
+
+### Revisi
+- **Panel ketik terkunci di tengah layar** — jendela panel tidak lagi digeser
+  atau diperkecil saat keyboard bawaan muncul (`SOFT_INPUT_ADJUST_NOTHING`),
+  jadi posisinya tetap terpusat secara horizontal dan vertikal. Pertumbuhan
+  ke atas tetap dipertahankan.
+- **Simbol Win+Tab** diganti menjadi **⇌**.
+- **D-Pad digambar ulang** menjadi piringan bundar bergaya faset: gradasi
+  gelap mengilap, empat belas potongan segi yang memantulkan cahaya
+  berbeda-beda, tepi berkilau, dan dua kaki kecil di bawah.
+
+### Fitur baru
+- **Pintasan Ctrl+,** (buka pengaturan aplikasi Windows) di panel Advance,
+  memakai ikon gir.
+- **Pointer location** — garis bidik dan koordinat setiap jari di trackpad.
+  Default **mati**.
+- **Show taps** — riak lingkaran yang meredup di titik sentuhan, termasuk
+  untuk jari kedua dan ketiga. Default **aktif**.
+- **Nama berkas APK memuat versi**, misalnya `CLAUDEPAD-v2.6.apk`.
 
 ## v2.5
 
