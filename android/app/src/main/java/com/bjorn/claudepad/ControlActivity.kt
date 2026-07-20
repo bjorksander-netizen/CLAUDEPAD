@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.Context
 import android.view.Gravity
 import android.view.KeyEvent
@@ -39,8 +40,18 @@ class ControlActivity : AppCompatActivity() {
     private var lastVolSent = -1
     private var lastVolTime = 0L
 
+    /** Layar ikut berputar mengikuti orientasi input trackpad. */
+    private fun applyScreenOrientation() {
+        requestedOrientation = when (Prefs.inputRotation(this)) {
+            90 -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            270 -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+            else -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyScreenOrientation()
         setContentView(R.layout.activity_control)
         Haptics.init(this)
         Glass.apply(this, findViewById(R.id.rootControl))
@@ -52,6 +63,14 @@ class ControlActivity : AppCompatActivity() {
         tvStatus = findViewById(R.id.tvStatus)
         trackpad = findViewById(R.id.trackpad)
         volumeSlider = findViewById(R.id.volumeSlider)
+
+        WifiPerf.acquire(this)
+        WsClient.autoReconnect = Prefs.autoReconnect(this)
+        WsClient.onNewToken = { t -> Prefs.setToken(this, t) }
+        WsClient.onReconnecting = { n ->
+            runOnUiThread { tvStatus.text = "menyambung ulang… ($n/5)" }
+        }
+        if (WsClient.macAddress.isNotEmpty()) Prefs.setMac(this, WsClient.macAddress)
 
         setupConnectionCallbacks()
         setupTrackpad()
@@ -90,6 +109,14 @@ class ControlActivity : AppCompatActivity() {
                     runOnUiThread { volumeSlider.value = o.optInt("v", volumeSlider.value) }
                 }
                 "volerr" -> runOnUiThread { onVolumeError() }
+                "bright_result", "power_result" -> {
+                    val msg = o.optString("msg")
+                    val ok = o.optBoolean("ok")
+                    runOnUiThread {
+                        if (ok) Haptics.medium() else Haptics.light()
+                        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                    }
+                }
                 "radio_result" -> {
                     val msg = o.optString("msg")
                     val ok = o.optBoolean("ok")
@@ -153,14 +180,22 @@ class ControlActivity : AppCompatActivity() {
         trackpad.pointerLocation = Prefs.pointerLocation(this)
         trackpad.showTaps = Prefs.showTaps(this)
         trackpad.listener = object : TrackpadView.Listener {
-            override fun onMove(dx: Int, dy: Int) = WsClient.move(dx, dy)
+            // Gerakan digabung per frame oleh MoveSender, bukan dikirim
+            // satu paket per event sentuhan.
+            override fun onMove(dx: Int, dy: Int) =
+                MoveSender.move(dx.toFloat(), dy.toFloat())
             override fun onLeftClick() = WsClient.click("left")
             override fun onRightClick() = WsClient.click("right")
             override fun onScroll(notches: Int) = WsClient.scroll(notches)
+            override fun onScrollHorizontal(notches: Int) = WsClient.scrollHorizontal(notches)
+            override fun onMiddleClick() = WsClient.click("middle")
             override fun onZoom(direction: Int) = WsClient.zoom(direction)
             override fun onGesture(name: String) = WsClient.gesture(name)
             override fun onDragStart() = WsClient.buttonDown("left")
-            override fun onDragEnd() = WsClient.buttonUp("left")
+            override fun onDragEnd() {
+                MoveSender.flush()
+                WsClient.buttonUp("left")
+            }
         }
     }
 
@@ -348,12 +383,14 @@ class ControlActivity : AppCompatActivity() {
         // panel Advance
         findViewById<TextView>(R.id.btnAdvance).setOnClickListener { anchor ->
             Haptics.medium()
-            showGroupPopup(anchor, R.layout.popup_advance, 210, 210) { root, pop ->
+            showGroupPopup(anchor, R.layout.popup_advance, 230, 230) { root, pop ->
                 bindKey(root, pop, R.id.kEsc) { WsClient.key("esc") }
                 bindKey(root, pop, R.id.kTab) { WsClient.key("tab") }
                 bindKey(root, pop, R.id.kWin) { WsClient.key("win") }
                 bindKey(root, pop, R.id.kDel) { WsClient.key("delete") }
                 bindKey(root, pop, R.id.kSettings) { WsClient.key(",", listOf("ctrl")) }
+                bindKey(root, pop, R.id.kScreenOff, close = true) { WsClient.power("screenoff") }
+                bindKey(root, pop, R.id.kLock, close = true) { WsClient.power("lock") }
             }
         }
     }
@@ -410,6 +447,7 @@ class ControlActivity : AppCompatActivity() {
                 sendVolume(v)
             }
         }
+        volumeSlider.onMuteTap = { WsClient.media("mute") }
         volumeSlider.onCommit = { v ->
             WsClient.volume = v
             if (v != lastVolSent) sendVolume(v)
@@ -450,7 +488,9 @@ class ControlActivity : AppCompatActivity() {
         tap(R.id.mPlay, Haptics.Level.MEDIUM) { WsClient.media("playpause") }
         tap(R.id.mPrev) { WsClient.media("prev") }
         tap(R.id.mNext) { WsClient.media("next") }
-        tap(R.id.mMute, Haptics.Level.MEDIUM) { WsClient.media("mute") }
+        // Mute pindah ke ketukan ikon speaker pada slider volume.
+        tap(R.id.mBrightUp, Haptics.Level.MEDIUM) { WsClient.brightness(10) }
+        tap(R.id.mBrightDown, Haptics.Level.MEDIUM) { WsClient.brightness(-10) }
     }
 
     private fun setupDpad() {
@@ -477,9 +517,8 @@ class ControlActivity : AppCompatActivity() {
             trackpad.inputRotation = next
             Prefs.setInputRotation(this, next)
             renderRotate()
-            Toast.makeText(this,
-                if (next == 0) "input normal" else "input diputar ${next}°",
-                Toast.LENGTH_SHORT).show()
+            // Seluruh tampilan ikut berputar, memakai layout lanskap khusus.
+            applyScreenOrientation()
         }
         findViewById<TextView>(R.id.btnSettings).setOnClickListener {
             Haptics.light()
@@ -503,12 +542,17 @@ class ControlActivity : AppCompatActivity() {
         trackpad.inputRotation = Prefs.inputRotation(this)
         trackpad.pointerLocation = Prefs.pointerLocation(this)
         trackpad.showTaps = Prefs.showTaps(this)
+        WsClient.autoReconnect = Prefs.autoReconnect(this)
+        applyScreenOrientation()
         if (!WsClient.connected) finish()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         pingRunning = false
+        WifiPerf.release()
+        MoveSender.reset()
+        WsClient.onReconnecting = null
         pingHandler.removeCallbacksAndMessages(null)
         WsClient.onPing = null
         typeDialog?.dismiss()

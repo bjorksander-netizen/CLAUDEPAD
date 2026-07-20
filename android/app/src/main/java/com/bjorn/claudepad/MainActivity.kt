@@ -74,7 +74,8 @@ class MainActivity : AppCompatActivity() {
         Prefs.setIp(this, etIp.text.toString().trim())
         Prefs.setPin(this, pin)
 
-        tvStatus.text = "menghubungkan ke $host…"
+        tvStatus.text = if (Prefs.token(this).isEmpty())
+            "menghubungkan ke $host…" else "menghubungkan ($host)…"
         WsClient.onState = { ok, msg ->
             runOnUiThread {
                 tvStatus.text = msg
@@ -86,7 +87,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        WsClient.connect(host, 8765, pin, appVersion())
+        WsClient.onNewToken = { t -> Prefs.setToken(this, t) }
+        WsClient.connect(host, 8765, pin, appVersion(), Prefs.token(this))
     }
 
     private fun appVersion(): String = try {

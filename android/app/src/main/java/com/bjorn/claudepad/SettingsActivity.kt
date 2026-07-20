@@ -16,54 +16,6 @@ class SettingsActivity : AppCompatActivity() {
     companion object {
         const val README_URL = "https://github.com/bjorksander-netizen/CLAUDEPAD#readme"
 
-        val CHANGELOG = """
-            v2.2
-            • Perbaikan WiFi/Hotspot & cari otomatis: server kini membuka
-              firewall Windows otomatis; pencarian memakai broadcast
-              per-interface dengan 3 percobaan
-            • Blur background diperbaiki: blur asli (Android 12+) plus
-              lapisan frost yang bekerja di semua perangkat
-            • Warna aksen kini diambil dari WallpaperColors (Android 8.1+),
-              bukan hanya Material You
-            • Slider intensitas blur & slider kekuatan haptic di setting
-            • Fitur backspace dikembalikan (tombol ⌫ + hapus di kolom ketik)
-            • Kunci versi: koneksi ditolak bila versi APK ≠ versi server
-            • Tombol putuskan koneksi (⏻) di bar atas & di jendela server
-
-            v2.1
-            • Perbaikan fatal: trackpad hilang karena panel bawah
-              melahap seluruh tinggi layar — tinggi baris bawah kini tetap
-            • Panel D-Pad disamakan ukurannya dengan panel media
-            • Slider volume diperbaiki (inisialisasi COM audio di server)
-              plus mode cadangan bila server tanpa pycaw
-            • Menu Advance kini pop-up persegi, bukan baris dropdown
-            • Wallpaper di belakang aplikasi kini diblur (Android 12+)
-            • Fitur orientasi diluruskan: hanya arah INPUT trackpad yang
-              berputar 90°, layout tidak berubah sama sekali
-            • Warna aksen mengikuti wallpaper perangkat (Material You)
-
-            v2.0
-            • Tema baru bergaya Control Center: panel kaca tembus pandang
-              yang memperlihatkan wallpaper HP
-            • Gesture Windows Precision Touchpad lengkap:
-              2 jari scroll & pinch zoom, 3 jari untuk Task View,
-              Show Desktop, dan ganti aplikasi
-            • Slider volume absolut menggantikan tombol mute
-            • D-Pad ala DualShock untuk tombol arah, dengan auto-repeat
-            • Getaran haptic bertingkat sesuai bobot aksi
-            • Tombol ubah orientasi (vertikal / horizontal)
-            • Halaman Setting baru
-            • Tombol Esc, Tab, Win, Del dikelompokkan ke menu Advance
-            • Alt+Tab diganti Win+Tab
-            • Semua tombol memakai simbol fungsi
-            • Font monospace JetBrains Mono
-            • Fitur clipboard sync dan backspace dihapus
-
-            v1.0
-            • Rilis pertama: trackpad, keyboard, clipboard sync,
-              media control, koneksi WiFi/Hotspot & USB
-        """.trimIndent()
-
         val GESTURE_GUIDE = """
             1 jari geser        gerakkan kursor
             1 jari tap          klik kiri
@@ -86,6 +38,7 @@ class SettingsActivity : AppCompatActivity() {
         bindConnectionInfo()
         bindToggles()
         bindSensitivity()
+        bindPower()
         bindPingLog()
         bindAbout()
 
@@ -146,6 +99,25 @@ class SettingsActivity : AppCompatActivity() {
         toggleRow(R.id.rowAwake, R.id.tvAwake,
             { Prefs.keepAwake(this) },
             { v -> Prefs.setKeepAwake(this, v) })
+
+        toggleRow(R.id.rowAutoReconnect, R.id.tvAutoReconnect,
+            { Prefs.autoReconnect(this) },
+            { v -> Prefs.setAutoReconnect(this, v); WsClient.autoReconnect = v })
+
+        findViewById<TextView>(R.id.tvPairState).text =
+            if (Prefs.token(this).isEmpty()) "belum dipasangkan" else "tersimpan"
+        findViewById<View>(R.id.rowForgetPair).setOnClickListener {
+            Haptics.medium()
+            AlertDialog.Builder(this)
+                .setTitle("lupakan pemasangan")
+                .setMessage("PIN akan diminta lagi saat menyambung berikutnya.")
+                .setPositiveButton("lupakan") { _, _ ->
+                    Prefs.setToken(this, "")
+                    findViewById<TextView>(R.id.tvPairState).text = "belum dipasangkan"
+                }
+                .setNegativeButton("batal", null)
+                .show()
+        }
 
         toggleRow(R.id.rowShowTaps, R.id.tvShowTaps,
             { Prefs.showTaps(this) },
@@ -233,6 +205,87 @@ class SettingsActivity : AppCompatActivity() {
         })
     }
 
+    // ------------------------------------------------------------------ daya --
+    /** Kontrol daya PC. Semua aksi berisiko dikonfirmasi lebih dulu. */
+    private fun bindPower() {
+        findViewById<View>(R.id.rowPower).setOnClickListener {
+            Haptics.medium()
+            if (!WsClient.connected) {
+                toast("belum terhubung ke pc")
+                return@setOnClickListener
+            }
+            val view = layoutInflater.inflate(R.layout.popup_power, null)
+            Fonts.apply(view)
+            val dlg = AlertDialog.Builder(this)
+                .setTitle("kontrol daya pc")
+                .setView(view)
+                .setNegativeButton("tutup", null)
+                .create()
+
+            fun act(id: Int, label: String, action: String, confirm: Boolean) {
+                view.findViewById<View>(id).setOnClickListener {
+                    Haptics.medium()
+                    if (confirm) {
+                        AlertDialog.Builder(this)
+                            .setTitle(label)
+                            .setMessage("Yakin ingin $label? Pekerjaan yang belum " +
+                                        "disimpan di PC bisa hilang.")
+                            .setPositiveButton("lanjutkan") { _, _ ->
+                                WsClient.power(action); dlg.dismiss()
+                            }
+                            .setNegativeButton("batal", null)
+                            .show()
+                    } else {
+                        WsClient.power(action); dlg.dismiss()
+                    }
+                }
+            }
+            act(R.id.pShutdown, "matikan pc", "shutdown", true)
+            act(R.id.pRestart, "mulai ulang pc", "restart", true)
+            act(R.id.pSleep, "tidurkan pc", "sleep", false)
+            act(R.id.pHibernate, "hibernasi pc", "hibernate", false)
+            act(R.id.pLogoff, "keluar sesi", "logoff", true)
+            dlg.show()
+        }
+
+        // Wake-on-LAN — eksperimental
+        val wolLabel = findViewById<TextView>(R.id.tvWol)
+        findViewById<View>(R.id.rowWol).setOnClickListener {
+            Haptics.medium()
+            val mac = Prefs.mac(this).ifEmpty { WsClient.macAddress }
+            if (mac.isEmpty()) {
+                showText("wake-on-lan (eksperimental)",
+                    "Alamat MAC PC belum diketahui.\n\n" +
+                    "Sambungkan sekali ke PC lewat WiFi supaya aplikasi " +
+                    "dapat mencatat alamatnya, lalu coba lagi.")
+                return@setOnClickListener
+            }
+            AlertDialog.Builder(this)
+                .setTitle("wake-on-lan (eksperimental)")
+                .setMessage("Kirim sinyal penyalaan ke $mac?\n\n" +
+                    "Fitur ini eksperimental. Agar berhasil, Wake-on-LAN harus " +
+                    "diaktifkan di BIOS/UEFI dan pada properti adapter jaringan " +
+                    "Windows. Umumnya hanya bekerja lewat kabel LAN — banyak " +
+                    "adapter WiFi tidak mendukungnya.")
+                .setPositiveButton("kirim") { _, _ ->
+                    Thread {
+                        val res = WakeOnLan.send(mac)
+                        runOnUiThread {
+                            wolLabel.text = if (res.isSuccess) "sinyal terkirim" else "gagal"
+                            toast(if (res.isSuccess)
+                                "sinyal terkirim — tunggu beberapa detik"
+                            else "gagal: ${res.exceptionOrNull()?.message}")
+                        }
+                    }.start()
+                }
+                .setNegativeButton("batal", null)
+                .show()
+        }
+    }
+
+    private fun toast(s: String) =
+        android.widget.Toast.makeText(this, s, android.widget.Toast.LENGTH_SHORT).show()
+
     // ---------------------------------------------------------------- log ping --
     private fun bindPingLog() {
         findViewById<TextView>(R.id.tvPingLog).text = PingLog.summary()
@@ -299,10 +352,6 @@ class SettingsActivity : AppCompatActivity() {
         } catch (e: Exception) { "—" }
         findViewById<TextView>(R.id.tvVersion).text = "v$version"
 
-        findViewById<View>(R.id.rowChangelog).setOnClickListener {
-            Haptics.light()
-            showText("change log", CHANGELOG)
-        }
         findViewById<View>(R.id.rowDiagnose).setOnClickListener {
             Haptics.medium()
             runDiagnostic()

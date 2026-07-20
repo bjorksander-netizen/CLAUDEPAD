@@ -22,6 +22,8 @@ class VolumeSlider @JvmOverloads constructor(
     var onValueChanged: ((Int) -> Unit)? = null
     /** Dipanggil sekali saat jari dilepas. */
     var onCommit: ((Int) -> Unit)? = null
+    /** Ketukan pada ikon speaker di bawah slider = bisukan. */
+    var onMuteTap: (() -> Unit)? = null
 
     var value: Int = 50
         set(v) {
@@ -46,6 +48,7 @@ class VolumeSlider @JvmOverloads constructor(
     private val clipPath = Path()
     private val iconPath = Path()
     private var lastNotch = -1
+    private var downOnIcon = false
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -109,7 +112,25 @@ class VolumeSlider @JvmOverloads constructor(
 
     override fun onTouchEvent(e: MotionEvent): Boolean {
         when (e.actionMasked) {
-            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+            MotionEvent.ACTION_DOWN -> {
+                // area ikon speaker di ujung bawah dipakai untuk mute
+                if (e.y > height - width * 1.15f) {
+                    downOnIcon = true
+                    parent?.requestDisallowInterceptTouchEvent(true)
+                    return true
+                }
+                downOnIcon = false
+                parent?.requestDisallowInterceptTouchEvent(true)
+                val v = valueFromY(e.y)
+                if (v != value) {
+                    value = v
+                    onValueChanged?.invoke(v)
+                    val notch = v / 5
+                    if (notch != lastNotch) { lastNotch = notch; Haptics.tick() }
+                }
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (downOnIcon) return true
                 parent?.requestDisallowInterceptTouchEvent(true)
                 val v = valueFromY(e.y)
                 if (v != value) {
@@ -121,8 +142,14 @@ class VolumeSlider @JvmOverloads constructor(
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 parent?.requestDisallowInterceptTouchEvent(false)
-                Haptics.light()
-                onCommit?.invoke(value)
+                if (downOnIcon) {
+                    downOnIcon = false
+                    Haptics.medium()
+                    onMuteTap?.invoke()
+                } else {
+                    Haptics.light()
+                    onCommit?.invoke(value)
+                }
             }
         }
         return true

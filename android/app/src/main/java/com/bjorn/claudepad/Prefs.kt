@@ -57,6 +57,18 @@ object Prefs {
     fun setShowTaps(ctx: Context, v: Boolean) =
         sp(ctx).edit().putBoolean("show_taps", v).apply()
 
+    /** Token perangkat tepercaya — supaya PIN tidak perlu diketik ulang. */
+    fun token(ctx: Context): String = sp(ctx).getString("token", "") ?: ""
+    fun setToken(ctx: Context, v: String) = sp(ctx).edit().putString("token", v).apply()
+
+    /** MAC PC terakhir, dipakai Wake-on-LAN (eksperimental). */
+    fun mac(ctx: Context): String = sp(ctx).getString("mac", "") ?: ""
+    fun setMac(ctx: Context, v: String) = sp(ctx).edit().putString("mac", v).apply()
+
+    fun autoReconnect(ctx: Context) = sp(ctx).getBoolean("auto_reconnect", true)
+    fun setAutoReconnect(ctx: Context, v: Boolean) =
+        sp(ctx).edit().putBoolean("auto_reconnect", v).apply()
+
     fun keepAwake(ctx: Context) = sp(ctx).getBoolean("awake", true)
     fun setKeepAwake(ctx: Context, v: Boolean) = sp(ctx).edit().putBoolean("awake", v).apply()
 

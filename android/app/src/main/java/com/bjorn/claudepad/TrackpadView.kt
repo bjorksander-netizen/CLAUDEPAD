@@ -33,6 +33,8 @@ class TrackpadView @JvmOverloads constructor(
         fun onLeftClick()
         fun onRightClick()
         fun onScroll(notches: Int)
+        fun onScrollHorizontal(notches: Int)
+        fun onMiddleClick()
         fun onZoom(direction: Int)
         fun onGesture(name: String)
         fun onDragStart()
@@ -128,6 +130,11 @@ class TrackpadView @JvmOverloads constructor(
     private var moved = false
     private var dragging = false
     private var scrollAccum = 0f
+    private var scrollAccumX = 0f
+    /** 0 = belum ditentukan, 1 = vertikal, 2 = horizontal. */
+    private var scrollAxis = 0
+    private var scrollProbeX = 0f
+    private var scrollProbeY = 0f
     private var pinchStartDist = 0f
     private var pinchAccum = 0f
     private var isPinching = false
@@ -253,6 +260,10 @@ class TrackpadView @JvmOverloads constructor(
                 maxPointers = 1
                 moved = false
                 scrollAccum = 0f
+                scrollAccumX = 0f
+                scrollAxis = 0
+                scrollProbeX = 0f
+                scrollProbeY = 0f
                 pinchAccum = 0f
                 isPinching = false
                 threeFingerFired = false
@@ -317,17 +328,36 @@ class TrackpadView @JvmOverloads constructor(
                                 Haptics.tick(); listener?.onZoom(-1); pinchAccum += pinchStep
                             }
                         } else {
-                            scrollAccum += when (inputRotation) {
-                                90 -> -dx
-                                270 -> dx
-                                else -> dy
+                            // Sumbu scroll ditentukan oleh arah dominan gerakan
+                            // dua jari, lalu dikunci sampai jari diangkat agar
+                            // tidak berganti-ganti di tengah gulungan.
+                            val (sx, sy) = tx(dx, dy)
+                            if (scrollAxis == 0) {
+                                scrollProbeX += kotlin.math.abs(sx)
+                                scrollProbeY += kotlin.math.abs(sy)
+                                if (scrollProbeX > touchSlop || scrollProbeY > touchSlop) {
+                                    scrollAxis = if (scrollProbeX > scrollProbeY * 1.3f) 2 else 1
+                                }
                             }
                             val dir = if (naturalScroll) -1 else 1
-                            while (scrollAccum >= scrollStep) {
-                                Haptics.tick(); listener?.onScroll(120 * dir); scrollAccum -= scrollStep
-                            }
-                            while (scrollAccum <= -scrollStep) {
-                                Haptics.tick(); listener?.onScroll(-120 * dir); scrollAccum += scrollStep
+                            if (scrollAxis == 2) {
+                                scrollAccumX += sx
+                                while (scrollAccumX >= scrollStep) {
+                                    Haptics.tick(); listener?.onScrollHorizontal(120 * dir)
+                                    scrollAccumX -= scrollStep
+                                }
+                                while (scrollAccumX <= -scrollStep) {
+                                    Haptics.tick(); listener?.onScrollHorizontal(-120 * dir)
+                                    scrollAccumX += scrollStep
+                                }
+                            } else if (scrollAxis == 1) {
+                                scrollAccum += sy
+                                while (scrollAccum >= scrollStep) {
+                                    Haptics.tick(); listener?.onScroll(120 * dir); scrollAccum -= scrollStep
+                                }
+                                while (scrollAccum <= -scrollStep) {
+                                    Haptics.tick(); listener?.onScroll(-120 * dir); scrollAccum += scrollStep
+                                }
                             }
                         }
                     }
@@ -349,7 +379,7 @@ class TrackpadView @JvmOverloads constructor(
                     listener?.onDragEnd()
                 } else if (!moved && !threeFingerFired && now - downTime < tapTimeout) {
                     when {
-                        maxPointers >= 3 -> { /* tap 3 jari: tidak ada aksi */ }
+                        maxPointers >= 3 -> { Haptics.medium(); listener?.onMiddleClick() }
                         maxPointers == 2 -> { Haptics.light(); listener?.onRightClick() }
                         else -> { Haptics.light(); listener?.onLeftClick(); lastTapTime = now }
                     }
